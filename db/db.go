@@ -1,75 +1,43 @@
-package main
+package db
 
 import (
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/lib/pq"
 )
 
 const (
-	DB_USER     = "postgres"
-	DB_PASSWORD = "postgres"
-	DB_NAME     = "test"
+	host     = "localhost"
+	port     = 5432
+	user     = "coopcat_dev"
+	password = "coopcat_dev"
+	dbname   = "coopcat"
 )
-
-func main() {
-	dbinfo := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		DB_USER, DB_PASSWORD, DB_NAME)
-	db, err := sql.Open("postgres", dbinfo)
-	checkErr(err)
-	defer db.Close()
-
-	fmt.Println("# Inserting values")
-
-	var lastInsertId int
-	err = db.QueryRow("INSERT INTO userinfo(username,departname,created) VALUES($1,$2,$3) returning uid;", "astaxie", "研发部门", "2012-12-09").Scan(&lastInsertId)
-	checkErr(err)
-	fmt.Println("last inserted id =", lastInsertId)
-
-	fmt.Println("# Updating")
-	stmt, err := db.Prepare("update userinfo set username=$1 where uid=$2")
-	checkErr(err)
-
-	res, err := stmt.Exec("astaxieupdate", lastInsertId)
-	checkErr(err)
-
-	affect, err := res.RowsAffected()
-	checkErr(err)
-
-	fmt.Println(affect, "rows changed")
-
-	fmt.Println("# Querying")
-	rows, err := db.Query("SELECT * FROM userinfo")
-	checkErr(err)
-
-	for rows.Next() {
-		var uid int
-		var username string
-		var department string
-		var created time.Time
-		err = rows.Scan(&uid, &username, &department, &created)
-		checkErr(err)
-		fmt.Println("uid | username | department | created ")
-		fmt.Printf("%3v | %8v | %6v | %6v\n", uid, username, department, created)
-	}
-
-	fmt.Println("# Deleting")
-	stmt, err = db.Prepare("delete from userinfo where uid=$1")
-	checkErr(err)
-
-	res, err = stmt.Exec(lastInsertId)
-	checkErr(err)
-
-	affect, err = res.RowsAffected()
-	checkErr(err)
-
-	fmt.Println(affect, "rows changed")
-}
 
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func InsertUser() {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	var lastInsertId int
+	db.Exec("INSERT INTO coopcat.user VALUES(13123, 'arnold this is from golang')")
+	checkErr(err)
+	fmt.Println("last inserted id =", lastInsertId)
+
+	db.Close()
+
+	fmt.Println("Database closed.")
 }

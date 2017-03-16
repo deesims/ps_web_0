@@ -5,10 +5,11 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/deesims/ps_web_0/db"
 	"github.com/gorilla/mux"
 )
 
-var templates = template.Must(template.ParseFiles("index.html", "login.html"))
+var templates, _ = template.ParseFiles("login.html", "index.html")
 
 // Handles the index page, renders a home page
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +32,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data map[string]interface{}) {
+
 	err := templates.ExecuteTemplate(w, tmpl+".html", data)
 	if err != nil {
 		fmt.Println("Executing template failed...")
@@ -44,15 +46,15 @@ func main() {
 	r.HandleFunc("/", homeHandler)
 	r.HandleFunc("/login", loginHandler)
 
-	fmt.Println("Server Launched;Listening on:localhost:8080;")
-
 	http.Handle("/", r)
-	http.Handle("/login", r)
+	//http.Handle("/login", r)
+
+	db.InsertUser()
 
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 
 	fmt.Println("Public directory launched;")
 
-	http.ListenAndServe("localhost:8080", nil)
+	http.ListenAndServe("localhost:7388", nil)
 
 }
