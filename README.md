@@ -1,4 +1,3 @@
-# ps_web_0
-personal web tester 
+# postgres_web_project
 
-for testing n such 
+PostgresSQL project in progress...
