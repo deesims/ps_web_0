@@ -5,13 +5,13 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"os"
-	"encoding/json"
 )
 
 const (
 	host     = "localhost"
 	port     = 5432
+	user     = "coopcat_dev"
+	password = "coopcat_dev"
 	dbname   = "coopcat"
 )
 
@@ -21,23 +21,10 @@ func checkErr(err error) {
 	}
 }
 
-type ConnectionSettings struct {
-	User string //TIL that variables starting with lowercase are private
-	Password string
-}
-
 func InsertUser() {
-	file, _ := os.Open("config.json")
-	decoder := json.NewDecoder(file)
-	conSettings := ConnectionSettings{}
-	err := decoder.Decode(&conSettings)
-	if err != nil {
-		checkErr(err)
-	}
-
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		host, port, conSettings.User, conSettings.Password, dbname)
+		host, port, user, password, dbname)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
