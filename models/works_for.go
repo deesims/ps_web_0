@@ -33,8 +33,8 @@ type WorksFor struct {
 
 // worksForR is where relationships are stored.
 type worksForR struct {
-	User *User
 	Job  *Job
+	User *User
 }
 
 // worksForL is where Load methods for each relationship are stored.
@@ -323,25 +323,6 @@ func (q worksForQuery) Exists() (bool, error) {
 	return count > 0, nil
 }
 
-// UserG pointed to by the foreign key.
-func (o *WorksFor) UserG(mods ...qm.QueryMod) userQuery {
-	return o.User(boil.GetDB(), mods...)
-}
-
-// User pointed to by the foreign key.
-func (o *WorksFor) User(exec boil.Executor, mods ...qm.QueryMod) userQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("user_id=?", o.UserID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	query := Users(exec, queryMods...)
-	queries.SetFrom(query.Query, "\"user\"")
-
-	return query
-}
-
 // JobG pointed to by the foreign key.
 func (o *WorksFor) JobG(mods ...qm.QueryMod) jobQuery {
 	return o.Job(boil.GetDB(), mods...)
@@ -361,82 +342,23 @@ func (o *WorksFor) Job(exec boil.Executor, mods ...qm.QueryMod) jobQuery {
 	return query
 }
 
-// LoadUser allows an eager lookup of values, cached into the
-// loaded structs of the objects.
-func (worksForL) LoadUser(e boil.Executor, singular bool, maybeWorksFor interface{}) error {
-	var slice []*WorksFor
-	var object *WorksFor
+// UserG pointed to by the foreign key.
+func (o *WorksFor) UserG(mods ...qm.QueryMod) userQuery {
+	return o.User(boil.GetDB(), mods...)
+}
 
-	count := 1
-	if singular {
-		object = maybeWorksFor.(*WorksFor)
-	} else {
-		slice = *maybeWorksFor.(*WorksForSlice)
-		count = len(slice)
+// User pointed to by the foreign key.
+func (o *WorksFor) User(exec boil.Executor, mods ...qm.QueryMod) userQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("user_id=?", o.UserID),
 	}
 
-	args := make([]interface{}, count)
-	if singular {
-		if object.R == nil {
-			object.R = &worksForR{}
-		}
-		args[0] = object.UserID
-	} else {
-		for i, obj := range slice {
-			if obj.R == nil {
-				obj.R = &worksForR{}
-			}
-			args[i] = obj.UserID
-		}
-	}
+	queryMods = append(queryMods, mods...)
 
-	query := fmt.Sprintf(
-		"select * from \"user\" where \"user_id\" in (%s)",
-		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
-	)
+	query := Users(exec, queryMods...)
+	queries.SetFrom(query.Query, "\"user\"")
 
-	if boil.DebugMode {
-		fmt.Fprintf(boil.DebugWriter, "%s\n%v\n", query, args)
-	}
-
-	results, err := e.Query(query, args...)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load User")
-	}
-	defer results.Close()
-
-	var resultSlice []*User
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice User")
-	}
-
-	if len(worksForAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		object.R.User = resultSlice[0]
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.UserID == foreign.UserID {
-				local.R.User = foreign
-				break
-			}
-		}
-	}
-
-	return nil
+	return query
 }
 
 // LoadJob allows an eager lookup of values, cached into the
@@ -517,77 +439,79 @@ func (worksForL) LoadJob(e boil.Executor, singular bool, maybeWorksFor interface
 	return nil
 }
 
-// SetUserG of the works_for to the related item.
-// Sets o.R.User to related.
-// Adds o to related.R.WorksFors.
-// Uses the global database handle.
-func (o *WorksFor) SetUserG(insert bool, related *User) error {
-	return o.SetUser(boil.GetDB(), insert, related)
-}
+// LoadUser allows an eager lookup of values, cached into the
+// loaded structs of the objects.
+func (worksForL) LoadUser(e boil.Executor, singular bool, maybeWorksFor interface{}) error {
+	var slice []*WorksFor
+	var object *WorksFor
 
-// SetUserP of the works_for to the related item.
-// Sets o.R.User to related.
-// Adds o to related.R.WorksFors.
-// Panics on error.
-func (o *WorksFor) SetUserP(exec boil.Executor, insert bool, related *User) {
-	if err := o.SetUser(exec, insert, related); err != nil {
-		panic(boil.WrapErr(err))
+	count := 1
+	if singular {
+		object = maybeWorksFor.(*WorksFor)
+	} else {
+		slice = *maybeWorksFor.(*WorksForSlice)
+		count = len(slice)
 	}
-}
 
-// SetUserGP of the works_for to the related item.
-// Sets o.R.User to related.
-// Adds o to related.R.WorksFors.
-// Uses the global database handle and panics on error.
-func (o *WorksFor) SetUserGP(insert bool, related *User) {
-	if err := o.SetUser(boil.GetDB(), insert, related); err != nil {
-		panic(boil.WrapErr(err))
-	}
-}
-
-// SetUser of the works_for to the related item.
-// Sets o.R.User to related.
-// Adds o to related.R.WorksFors.
-func (o *WorksFor) SetUser(exec boil.Executor, insert bool, related *User) error {
-	var err error
-	if insert {
-		if err = related.Insert(exec); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
+	args := make([]interface{}, count)
+	if singular {
+		if object.R == nil {
+			object.R = &worksForR{}
+		}
+		args[0] = object.UserID
+	} else {
+		for i, obj := range slice {
+			if obj.R == nil {
+				obj.R = &worksForR{}
+			}
+			args[i] = obj.UserID
 		}
 	}
 
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"works_for\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-		strmangle.WhereClause("\"", "\"", 2, worksForPrimaryKeyColumns),
+	query := fmt.Sprintf(
+		"select * from \"user\" where \"user_id\" in (%s)",
+		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
 	)
-	values := []interface{}{related.UserID, o.JobID, o.UserID}
 
 	if boil.DebugMode {
-		fmt.Fprintln(boil.DebugWriter, updateQuery)
-		fmt.Fprintln(boil.DebugWriter, values)
+		fmt.Fprintf(boil.DebugWriter, "%s\n%v\n", query, args)
 	}
 
-	if _, err = exec.Exec(updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
+	results, err := e.Query(query, args...)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load User")
+	}
+	defer results.Close()
+
+	var resultSlice []*User
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice User")
 	}
 
-	o.UserID = related.UserID
-
-	if o.R == nil {
-		o.R = &worksForR{
-			User: related,
+	if len(worksForAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
 		}
-	} else {
-		o.R.User = related
 	}
 
-	if related.R == nil {
-		related.R = &userR{
-			WorksFors: WorksForSlice{o},
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		object.R.User = resultSlice[0]
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.UserID == foreign.UserID {
+				local.R.User = foreign
+				break
+			}
 		}
-	} else {
-		related.R.WorksFors = append(related.R.WorksFors, o)
 	}
 
 	return nil
@@ -660,6 +584,82 @@ func (o *WorksFor) SetJob(exec boil.Executor, insert bool, related *Job) error {
 
 	if related.R == nil {
 		related.R = &jobR{
+			WorksFors: WorksForSlice{o},
+		}
+	} else {
+		related.R.WorksFors = append(related.R.WorksFors, o)
+	}
+
+	return nil
+}
+
+// SetUserG of the works_for to the related item.
+// Sets o.R.User to related.
+// Adds o to related.R.WorksFors.
+// Uses the global database handle.
+func (o *WorksFor) SetUserG(insert bool, related *User) error {
+	return o.SetUser(boil.GetDB(), insert, related)
+}
+
+// SetUserP of the works_for to the related item.
+// Sets o.R.User to related.
+// Adds o to related.R.WorksFors.
+// Panics on error.
+func (o *WorksFor) SetUserP(exec boil.Executor, insert bool, related *User) {
+	if err := o.SetUser(exec, insert, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetUserGP of the works_for to the related item.
+// Sets o.R.User to related.
+// Adds o to related.R.WorksFors.
+// Uses the global database handle and panics on error.
+func (o *WorksFor) SetUserGP(insert bool, related *User) {
+	if err := o.SetUser(boil.GetDB(), insert, related); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// SetUser of the works_for to the related item.
+// Sets o.R.User to related.
+// Adds o to related.R.WorksFors.
+func (o *WorksFor) SetUser(exec boil.Executor, insert bool, related *User) error {
+	var err error
+	if insert {
+		if err = related.Insert(exec); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"works_for\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+		strmangle.WhereClause("\"", "\"", 2, worksForPrimaryKeyColumns),
+	)
+	values := []interface{}{related.UserID, o.JobID, o.UserID}
+
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, updateQuery)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+
+	if _, err = exec.Exec(updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.UserID = related.UserID
+
+	if o.R == nil {
+		o.R = &worksForR{
+			User: related,
+		}
+	} else {
+		o.R.User = related
+	}
+
+	if related.R == nil {
+		related.R = &userR{
 			WorksFors: WorksForSlice{o},
 		}
 	} else {

@@ -463,56 +463,6 @@ func testWorksForsInsertWhitelist(t *testing.T) {
 	}
 }
 
-func testWorksForToOneUserUsingUser(t *testing.T) {
-	tx := MustTx(boil.Begin())
-	defer tx.Rollback()
-
-	var local WorksFor
-	var foreign User
-
-	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, worksForDBTypes, true, worksForColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize WorksFor struct: %s", err)
-	}
-	if err := randomize.Struct(seed, &foreign, userDBTypes, true, userColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize User struct: %s", err)
-	}
-
-	if err := foreign.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-
-	local.UserID = foreign.UserID
-	if err := local.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := local.User(tx).One()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if check.UserID != foreign.UserID {
-		t.Errorf("want: %v, got %v", foreign.UserID, check.UserID)
-	}
-
-	slice := WorksForSlice{&local}
-	if err = local.L.LoadUser(tx, false, &slice); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.User == nil {
-		t.Error("struct should have been eager loaded")
-	}
-
-	local.R.User = nil
-	if err = local.L.LoadUser(tx, true, &local); err != nil {
-		t.Fatal(err)
-	}
-	if local.R.User == nil {
-		t.Error("struct should have been eager loaded")
-	}
-}
-
 func testWorksForToOneJobUsingJob(t *testing.T) {
 	tx := MustTx(boil.Begin())
 	defer tx.Rollback()
@@ -563,58 +513,56 @@ func testWorksForToOneJobUsingJob(t *testing.T) {
 	}
 }
 
-func testWorksForToOneSetOpUserUsingUser(t *testing.T) {
-	var err error
-
+func testWorksForToOneUserUsingUser(t *testing.T) {
 	tx := MustTx(boil.Begin())
 	defer tx.Rollback()
 
-	var a WorksFor
-	var b, c User
+	var local WorksFor
+	var foreign User
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, worksForDBTypes, false, strmangle.SetComplement(worksForPrimaryKeyColumns, worksForColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	if err := randomize.Struct(seed, &local, worksForDBTypes, true, worksForColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize WorksFor struct: %s", err)
 	}
-	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
+	if err := randomize.Struct(seed, &foreign, userDBTypes, true, userColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize User struct: %s", err)
 	}
 
-	if err := a.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(tx); err != nil {
+	if err := foreign.Insert(tx); err != nil {
 		t.Fatal(err)
 	}
 
-	for i, x := range []*User{&b, &c} {
-		err = a.SetUser(tx, i != 0, x)
-		if err != nil {
-			t.Fatal(err)
-		}
+	local.UserID = foreign.UserID
+	if err := local.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
 
-		if a.R.User != x {
-			t.Error("relationship struct not set to correct value")
-		}
+	check, err := local.User(tx).One()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		if x.R.WorksFors[0] != &a {
-			t.Error("failed to append to foreign relationship struct")
-		}
-		if a.UserID != x.UserID {
-			t.Error("foreign key was wrong value", a.UserID)
-		}
+	if check.UserID != foreign.UserID {
+		t.Errorf("want: %v, got %v", foreign.UserID, check.UserID)
+	}
 
-		if exists, err := WorksForExists(tx, a.JobID, a.UserID); err != nil {
-			t.Fatal(err)
-		} else if !exists {
-			t.Error("want 'a' to exist")
-		}
+	slice := WorksForSlice{&local}
+	if err = local.L.LoadUser(tx, false, &slice); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.User == nil {
+		t.Error("struct should have been eager loaded")
+	}
 
+	local.R.User = nil
+	if err = local.L.LoadUser(tx, true, &local); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.User == nil {
+		t.Error("struct should have been eager loaded")
 	}
 }
+
 func testWorksForToOneSetOpJobUsingJob(t *testing.T) {
 	var err error
 
@@ -657,6 +605,58 @@ func testWorksForToOneSetOpJobUsingJob(t *testing.T) {
 		}
 		if a.JobID != x.JobID {
 			t.Error("foreign key was wrong value", a.JobID)
+		}
+
+		if exists, err := WorksForExists(tx, a.JobID, a.UserID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'a' to exist")
+		}
+
+	}
+}
+func testWorksForToOneSetOpUserUsingUser(t *testing.T) {
+	var err error
+
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a WorksFor
+	var b, c User
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, worksForDBTypes, false, strmangle.SetComplement(worksForPrimaryKeyColumns, worksForColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*User{&b, &c} {
+		err = a.SetUser(tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.User != x {
+			t.Error("relationship struct not set to correct value")
+		}
+
+		if x.R.WorksFors[0] != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+		if a.UserID != x.UserID {
+			t.Error("foreign key was wrong value", a.UserID)
 		}
 
 		if exists, err := WorksForExists(tx, a.JobID, a.UserID); err != nil {
