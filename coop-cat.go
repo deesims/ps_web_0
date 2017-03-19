@@ -7,7 +7,9 @@ import (
 
 	"github.com/deesims/ps_web_0/db"
 	"github.com/gorilla/mux"
+	. "github.com/vattle/sqlboiler/queries/qm"
 )
+//go:generate sqlboiler postgres --wipe
 
 var templates, _ = template.ParseFiles("login.html", "index.html")
 
