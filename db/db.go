@@ -9,7 +9,7 @@ import (
 
 const (
 	host     = "localhost"
-	port     = 5234
+	port     = 5432
 	user     = "coopcat_dev"
 	password = "coopcat_dev"
 	dbname   = "coopcat"
