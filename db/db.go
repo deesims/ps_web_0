@@ -15,6 +15,10 @@ const (
 	dbname   = "coopcat"
 )
 
+var PsqlInfo = fmt.Sprintf("host=%s port=%d user=%s "+
+	"password=%s dbname=%s sslmode=disable",
+	host, port, user, password, dbname)
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
@@ -22,11 +26,7 @@ func checkErr(err error) {
 }
 
 func Connection() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", PsqlInfo)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
