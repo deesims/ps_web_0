@@ -21,7 +21,7 @@ func checkErr(err error) {
 	}
 }
 
-func InsertUser() {
+func Connection() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -32,12 +32,5 @@ func InsertUser() {
 		panic(err)
 	}
 
-	var lastInsertId int
-	db.Exec("INSERT INTO coopcat.user VALUES(13123, 'arnold this is from golang')")
-	checkErr(err)
-	fmt.Println("last inserted id =", lastInsertId)
-
-	db.Close()
-
-	fmt.Println("Database closed.")
+	return db
 }
