@@ -21,7 +21,7 @@ var (
 
 func registerRoutesToFuncs(r *mux.Router) {
 	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/admin", AdminGET).Methods("GET", "POST")
+	r.HandleFunc("/admin", adminGET).Methods("GET", "POST")
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
 }
@@ -68,7 +68,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // loginHandler
-func loginGetHandler(w http.ResponseWriter, _ *http.Request) {
+func loginGetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("loginHandler Executing...")
 	data := map[string]interface{}{
 		"login": "herro",
