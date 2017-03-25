@@ -2,12 +2,11 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.2
--- Dumped by pg_dump version 9.6.2
+-- Dumped from database version 9.5.6
+-- Dumped by pg_dump version 9.5.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
--- SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -19,7 +18,7 @@ DROP DATABASE IF EXISTS coopcat;
 -- Name: coopcat; Type: DATABASE; Schema: -; Owner: coopcat_dev
 --
 
-CREATE DATABASE coopcat;
+CREATE DATABASE coopcat WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_CA.UTF-8' LC_CTYPE = 'en_CA.UTF-8';
 
 
 ALTER DATABASE coopcat OWNER TO coopcat_dev;
@@ -28,7 +27,6 @@ ALTER DATABASE coopcat OWNER TO coopcat_dev;
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -110,6 +108,20 @@ ALTER TABLE company_company_id_seq OWNER TO coopcat_dev;
 
 ALTER SEQUENCE company_company_id_seq OWNED BY company.company_id;
 
+
+--
+-- Name: goauth; Type: TABLE; Schema: public; Owner: coopcat_dev
+--
+
+CREATE TABLE goauth (
+    username character varying(255) NOT NULL,
+    email character varying(255),
+    hash character varying(255),
+    role character varying(255)
+);
+
+
+ALTER TABLE goauth OWNER TO coopcat_dev;
 
 --
 -- Name: job; Type: TABLE; Schema: public; Owner: coopcat_dev
@@ -229,7 +241,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE user_id_seq OWNER TO coopcat_dev;
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: coopcat_dev
+-- Name: users; Type: TABLE; Schema: public; Owner: coopcat_dev
 --
 
 CREATE TABLE users (
@@ -238,7 +250,7 @@ CREATE TABLE users (
     password character varying(250) NOT NULL,
     email character varying(100) NOT NULL,
     address character varying(100),
-    role integer,
+    role integer DEFAULT 0 NOT NULL,
     CONSTRAINT "USER_email_check" CHECK (((email)::text ~* '^[A-Za-z0-9]+@[A-Za-z0-9]+.[A-Za-z0-9]+$'::text))
 );
 
@@ -274,21 +286,21 @@ CREATE TABLE works_for (
 ALTER TABLE works_for OWNER TO coopcat_dev;
 
 --
--- Name: company company_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
+-- Name: company_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY company ALTER COLUMN company_id SET DEFAULT nextval('company_company_id_seq'::regclass);
 
 
 --
--- Name: job job_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
+-- Name: job_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY job ALTER COLUMN job_id SET DEFAULT nextval('job_job_id_seq'::regclass);
 
 
 --
--- Name: resume resume_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
+-- Name: resume_id; Type: DEFAULT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY resume ALTER COLUMN resume_id SET DEFAULT nextval('"resume_Resume_ID_seq"'::regclass);
@@ -305,6 +317,13 @@ ALTER TABLE ONLY resume ALTER COLUMN resume_id SET DEFAULT nextval('"resume_Resu
 --
 
 SELECT pg_catalog.setval('company_company_id_seq', 1, false);
+
+
+--
+-- Data for Name: goauth; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
+--
+
+INSERT INTO goauth (username, email, hash, role) VALUES ('roko', 'admin@localhost.com', '$2a$10$J8z2A8EEV8KZIyvn77lqpe87LfSJZYaSnqcF/I3dLkGJzK7eFJQii', 'admin');
 
 
 --
@@ -346,18 +365,19 @@ SELECT pg_catalog.setval('"resume_Resume_ID_seq"', 1, false);
 
 
 --
--- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
---
-
-INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 1);
-INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
-
-
---
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: coopcat_dev
 --
 
-SELECT pg_catalog.setval('user_id_seq', 6, true);
+SELECT pg_catalog.setval('user_id_seq', 7, true);
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
+--
+
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 0);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2 The Mod', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (7, 'John Doe The Admin', 'password', 'johnny@gmail.com', '123 North Street', 2);
 
 
 --
@@ -373,7 +393,7 @@ SELECT pg_catalog.setval('user_id_seq', 6, true);
 
 
 --
--- Name: user USER_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: USER_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY users
@@ -381,7 +401,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: company company_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: company_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY company
@@ -389,7 +409,15 @@ ALTER TABLE ONLY company
 
 
 --
--- Name: job job_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: goauth_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+--
+
+ALTER TABLE ONLY goauth
+    ADD CONSTRAINT goauth_pkey PRIMARY KEY (username);
+
+
+--
+-- Name: job_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY job
@@ -397,7 +425,7 @@ ALTER TABLE ONLY job
 
 
 --
--- Name: resume resume_author_id_resume_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: resume_author_id_resume_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY resume
@@ -405,7 +433,7 @@ ALTER TABLE ONLY resume
 
 
 --
--- Name: work_review review_works_forjobjob_id_works_for_user_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: review_works_forjobjob_id_works_for_user_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY work_review
@@ -413,7 +441,7 @@ ALTER TABLE ONLY work_review
 
 
 --
--- Name: resume_review reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY resume_review
@@ -421,7 +449,7 @@ ALTER TABLE ONLY resume_review
 
 
 --
--- Name: student student_user_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: student_user_id_pk; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY student
@@ -429,7 +457,7 @@ ALTER TABLE ONLY student
 
 
 --
--- Name: works_for works_for_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: works_for_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY works_for
@@ -444,14 +472,14 @@ CREATE UNIQUE INDEX user_email_uindex ON users USING btree (email);
 
 
 --
--- Name: works_for update_num_available_positions_trigger; Type: TRIGGER; Schema: public; Owner: coopcat_dev
+-- Name: update_num_available_positions_trigger; Type: TRIGGER; Schema: public; Owner: coopcat_dev
 --
 
 CREATE TRIGGER update_num_available_positions_trigger AFTER INSERT ON works_for FOR EACH ROW EXECUTE PROCEDURE update_num_available_positions();
 
 
 --
--- Name: resume_review fkreviews794469; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: fkreviews794469; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY resume_review
@@ -459,7 +487,7 @@ ALTER TABLE ONLY resume_review
 
 
 --
--- Name: student fkstudent664699; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: fkstudent664699; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY student
@@ -467,7 +495,7 @@ ALTER TABLE ONLY student
 
 
 --
--- Name: job job_company_company_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: job_company_company_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY job
@@ -475,7 +503,7 @@ ALTER TABLE ONLY job
 
 
 --
--- Name: resume resume_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: resume_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY resume
@@ -483,7 +511,7 @@ ALTER TABLE ONLY resume
 
 
 --
--- Name: works_for works_for_job_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: works_for_job_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY works_for
@@ -491,11 +519,21 @@ ALTER TABLE ONLY works_for
 
 
 --
--- Name: works_for works_for_user_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
+-- Name: works_for_user_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
 ALTER TABLE ONLY works_for
     ADD CONSTRAINT works_for_user_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

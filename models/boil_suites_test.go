@@ -13,154 +13,167 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
-	t.Run("Resumes", testResumes)
 	t.Run("Jobs", testJobs)
 	t.Run("WorkReviews", testWorkReviews)
-	t.Run("Users", testUsers)
 	t.Run("ResumeReviews", testResumeReviews)
 	t.Run("WorksFors", testWorksFors)
 	t.Run("Students", testStudents)
+	t.Run("Users", testUsers)
 	t.Run("Companies", testCompanies)
+	t.Run("Resumes", testResumes)
+	t.Run("Goauths", testGoauths)
 }
 
 func TestDelete(t *testing.T) {
-	t.Run("Resumes", testResumesDelete)
 	t.Run("Jobs", testJobsDelete)
 	t.Run("WorkReviews", testWorkReviewsDelete)
-	t.Run("Users", testUsersDelete)
 	t.Run("ResumeReviews", testResumeReviewsDelete)
 	t.Run("WorksFors", testWorksForsDelete)
 	t.Run("Students", testStudentsDelete)
+	t.Run("Users", testUsersDelete)
 	t.Run("Companies", testCompaniesDelete)
+	t.Run("Resumes", testResumesDelete)
+	t.Run("Goauths", testGoauthsDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
-	t.Run("Resumes", testResumesQueryDeleteAll)
 	t.Run("Jobs", testJobsQueryDeleteAll)
 	t.Run("WorkReviews", testWorkReviewsQueryDeleteAll)
-	t.Run("Users", testUsersQueryDeleteAll)
 	t.Run("ResumeReviews", testResumeReviewsQueryDeleteAll)
 	t.Run("WorksFors", testWorksForsQueryDeleteAll)
 	t.Run("Students", testStudentsQueryDeleteAll)
+	t.Run("Users", testUsersQueryDeleteAll)
 	t.Run("Companies", testCompaniesQueryDeleteAll)
+	t.Run("Resumes", testResumesQueryDeleteAll)
+	t.Run("Goauths", testGoauthsQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
-	t.Run("Resumes", testResumesSliceDeleteAll)
 	t.Run("Jobs", testJobsSliceDeleteAll)
 	t.Run("WorkReviews", testWorkReviewsSliceDeleteAll)
-	t.Run("Users", testUsersSliceDeleteAll)
 	t.Run("ResumeReviews", testResumeReviewsSliceDeleteAll)
 	t.Run("WorksFors", testWorksForsSliceDeleteAll)
 	t.Run("Students", testStudentsSliceDeleteAll)
+	t.Run("Users", testUsersSliceDeleteAll)
 	t.Run("Companies", testCompaniesSliceDeleteAll)
+	t.Run("Resumes", testResumesSliceDeleteAll)
+	t.Run("Goauths", testGoauthsSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
-	t.Run("Resumes", testResumesExists)
 	t.Run("Jobs", testJobsExists)
 	t.Run("WorkReviews", testWorkReviewsExists)
-	t.Run("Users", testUsersExists)
 	t.Run("ResumeReviews", testResumeReviewsExists)
 	t.Run("WorksFors", testWorksForsExists)
 	t.Run("Students", testStudentsExists)
+	t.Run("Users", testUsersExists)
 	t.Run("Companies", testCompaniesExists)
+	t.Run("Resumes", testResumesExists)
+	t.Run("Goauths", testGoauthsExists)
 }
 
 func TestFind(t *testing.T) {
-	t.Run("Resumes", testResumesFind)
 	t.Run("Jobs", testJobsFind)
 	t.Run("WorkReviews", testWorkReviewsFind)
-	t.Run("Users", testUsersFind)
 	t.Run("ResumeReviews", testResumeReviewsFind)
 	t.Run("WorksFors", testWorksForsFind)
 	t.Run("Students", testStudentsFind)
+	t.Run("Users", testUsersFind)
 	t.Run("Companies", testCompaniesFind)
+	t.Run("Resumes", testResumesFind)
+	t.Run("Goauths", testGoauthsFind)
 }
 
 func TestBind(t *testing.T) {
-	t.Run("Resumes", testResumesBind)
 	t.Run("Jobs", testJobsBind)
 	t.Run("WorkReviews", testWorkReviewsBind)
-	t.Run("Users", testUsersBind)
 	t.Run("ResumeReviews", testResumeReviewsBind)
 	t.Run("WorksFors", testWorksForsBind)
 	t.Run("Students", testStudentsBind)
+	t.Run("Users", testUsersBind)
 	t.Run("Companies", testCompaniesBind)
+	t.Run("Resumes", testResumesBind)
+	t.Run("Goauths", testGoauthsBind)
 }
 
 func TestOne(t *testing.T) {
-	t.Run("Resumes", testResumesOne)
 	t.Run("Jobs", testJobsOne)
 	t.Run("WorkReviews", testWorkReviewsOne)
-	t.Run("Users", testUsersOne)
 	t.Run("ResumeReviews", testResumeReviewsOne)
 	t.Run("WorksFors", testWorksForsOne)
 	t.Run("Students", testStudentsOne)
+	t.Run("Users", testUsersOne)
 	t.Run("Companies", testCompaniesOne)
+	t.Run("Resumes", testResumesOne)
+	t.Run("Goauths", testGoauthsOne)
 }
 
 func TestAll(t *testing.T) {
-	t.Run("Resumes", testResumesAll)
 	t.Run("Jobs", testJobsAll)
 	t.Run("WorkReviews", testWorkReviewsAll)
-	t.Run("Users", testUsersAll)
 	t.Run("ResumeReviews", testResumeReviewsAll)
 	t.Run("WorksFors", testWorksForsAll)
 	t.Run("Students", testStudentsAll)
+	t.Run("Users", testUsersAll)
 	t.Run("Companies", testCompaniesAll)
+	t.Run("Resumes", testResumesAll)
+	t.Run("Goauths", testGoauthsAll)
 }
 
 func TestCount(t *testing.T) {
-	t.Run("Resumes", testResumesCount)
 	t.Run("Jobs", testJobsCount)
 	t.Run("WorkReviews", testWorkReviewsCount)
-	t.Run("Users", testUsersCount)
 	t.Run("ResumeReviews", testResumeReviewsCount)
 	t.Run("WorksFors", testWorksForsCount)
 	t.Run("Students", testStudentsCount)
+	t.Run("Users", testUsersCount)
 	t.Run("Companies", testCompaniesCount)
+	t.Run("Resumes", testResumesCount)
+	t.Run("Goauths", testGoauthsCount)
 }
 
 func TestHooks(t *testing.T) {
-	t.Run("Resumes", testResumesHooks)
 	t.Run("Jobs", testJobsHooks)
 	t.Run("WorkReviews", testWorkReviewsHooks)
-	t.Run("Users", testUsersHooks)
 	t.Run("ResumeReviews", testResumeReviewsHooks)
 	t.Run("WorksFors", testWorksForsHooks)
 	t.Run("Students", testStudentsHooks)
+	t.Run("Users", testUsersHooks)
 	t.Run("Companies", testCompaniesHooks)
+	t.Run("Resumes", testResumesHooks)
+	t.Run("Goauths", testGoauthsHooks)
 }
 
 func TestInsert(t *testing.T) {
-	t.Run("Resumes", testResumesInsert)
-	t.Run("Resumes", testResumesInsertWhitelist)
 	t.Run("Jobs", testJobsInsert)
 	t.Run("Jobs", testJobsInsertWhitelist)
 	t.Run("WorkReviews", testWorkReviewsInsert)
 	t.Run("WorkReviews", testWorkReviewsInsertWhitelist)
-	t.Run("Users", testUsersInsert)
-	t.Run("Users", testUsersInsertWhitelist)
 	t.Run("ResumeReviews", testResumeReviewsInsert)
 	t.Run("ResumeReviews", testResumeReviewsInsertWhitelist)
 	t.Run("WorksFors", testWorksForsInsert)
 	t.Run("WorksFors", testWorksForsInsertWhitelist)
 	t.Run("Students", testStudentsInsert)
 	t.Run("Students", testStudentsInsertWhitelist)
+	t.Run("Users", testUsersInsert)
+	t.Run("Users", testUsersInsertWhitelist)
 	t.Run("Companies", testCompaniesInsert)
 	t.Run("Companies", testCompaniesInsertWhitelist)
+	t.Run("Resumes", testResumesInsert)
+	t.Run("Resumes", testResumesInsertWhitelist)
+	t.Run("Goauths", testGoauthsInsert)
+	t.Run("Goauths", testGoauthsInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
-	t.Run("ResumeToUserUsingAuthor", testResumeToOneUserUsingAuthor)
 	t.Run("JobToCompanyUsingCompany", testJobToOneCompanyUsingCompany)
 	t.Run("ResumeReviewToUserUsingModerator", testResumeReviewToOneUserUsingModerator)
 	t.Run("WorksForToJobUsingJob", testWorksForToOneJobUsingJob)
 	t.Run("WorksForToUserUsingUser", testWorksForToOneUserUsingUser)
 	t.Run("StudentToUserUsingUser", testStudentToOneUserUsingUser)
+	t.Run("ResumeToUserUsingAuthor", testResumeToOneUserUsingAuthor)
 }
 
 // TestOneToOne tests cannot be run in parallel
@@ -173,21 +186,21 @@ func TestOneToOne(t *testing.T) {
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
 	t.Run("JobToWorksFors", testJobToManyWorksFors)
-	t.Run("UserToAuthorResumes", testUserToManyAuthorResumes)
 	t.Run("UserToModeratorResumeReviews", testUserToManyModeratorResumeReviews)
 	t.Run("UserToWorksFors", testUserToManyWorksFors)
+	t.Run("UserToAuthorResumes", testUserToManyAuthorResumes)
 	t.Run("CompanyToJobs", testCompanyToManyJobs)
 }
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
-	t.Run("ResumeToUserUsingAuthor", testResumeToOneSetOpUserUsingAuthor)
 	t.Run("JobToCompanyUsingCompany", testJobToOneSetOpCompanyUsingCompany)
 	t.Run("ResumeReviewToUserUsingModerator", testResumeReviewToOneSetOpUserUsingModerator)
 	t.Run("WorksForToJobUsingJob", testWorksForToOneSetOpJobUsingJob)
 	t.Run("WorksForToUserUsingUser", testWorksForToOneSetOpUserUsingUser)
 	t.Run("StudentToUserUsingUser", testStudentToOneSetOpUserUsingUser)
+	t.Run("ResumeToUserUsingAuthor", testResumeToOneSetOpUserUsingAuthor)
 }
 
 // TestToOneRemove tests cannot be run in parallel
@@ -208,9 +221,9 @@ func TestOneToOneRemove(t *testing.T) {}
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
 	t.Run("JobToWorksFors", testJobToManyAddOpWorksFors)
-	t.Run("UserToAuthorResumes", testUserToManyAddOpAuthorResumes)
 	t.Run("UserToModeratorResumeReviews", testUserToManyAddOpModeratorResumeReviews)
 	t.Run("UserToWorksFors", testUserToManyAddOpWorksFors)
+	t.Run("UserToAuthorResumes", testUserToManyAddOpAuthorResumes)
 	t.Run("CompanyToJobs", testCompanyToManyAddOpJobs)
 }
 
@@ -223,67 +236,73 @@ func TestToManySet(t *testing.T) {}
 func TestToManyRemove(t *testing.T) {}
 
 func TestReload(t *testing.T) {
-	t.Run("Resumes", testResumesReload)
 	t.Run("Jobs", testJobsReload)
 	t.Run("WorkReviews", testWorkReviewsReload)
-	t.Run("Users", testUsersReload)
 	t.Run("ResumeReviews", testResumeReviewsReload)
 	t.Run("WorksFors", testWorksForsReload)
 	t.Run("Students", testStudentsReload)
+	t.Run("Users", testUsersReload)
 	t.Run("Companies", testCompaniesReload)
+	t.Run("Resumes", testResumesReload)
+	t.Run("Goauths", testGoauthsReload)
 }
 
 func TestReloadAll(t *testing.T) {
-	t.Run("Resumes", testResumesReloadAll)
 	t.Run("Jobs", testJobsReloadAll)
 	t.Run("WorkReviews", testWorkReviewsReloadAll)
-	t.Run("Users", testUsersReloadAll)
 	t.Run("ResumeReviews", testResumeReviewsReloadAll)
 	t.Run("WorksFors", testWorksForsReloadAll)
 	t.Run("Students", testStudentsReloadAll)
+	t.Run("Users", testUsersReloadAll)
 	t.Run("Companies", testCompaniesReloadAll)
+	t.Run("Resumes", testResumesReloadAll)
+	t.Run("Goauths", testGoauthsReloadAll)
 }
 
 func TestSelect(t *testing.T) {
-	t.Run("Resumes", testResumesSelect)
 	t.Run("Jobs", testJobsSelect)
 	t.Run("WorkReviews", testWorkReviewsSelect)
-	t.Run("Users", testUsersSelect)
 	t.Run("ResumeReviews", testResumeReviewsSelect)
 	t.Run("WorksFors", testWorksForsSelect)
 	t.Run("Students", testStudentsSelect)
+	t.Run("Users", testUsersSelect)
 	t.Run("Companies", testCompaniesSelect)
+	t.Run("Resumes", testResumesSelect)
+	t.Run("Goauths", testGoauthsSelect)
 }
 
 func TestUpdate(t *testing.T) {
-	t.Run("Resumes", testResumesUpdate)
 	t.Run("Jobs", testJobsUpdate)
 	t.Run("WorkReviews", testWorkReviewsUpdate)
-	t.Run("Users", testUsersUpdate)
 	t.Run("ResumeReviews", testResumeReviewsUpdate)
 	t.Run("WorksFors", testWorksForsUpdate)
 	t.Run("Students", testStudentsUpdate)
+	t.Run("Users", testUsersUpdate)
 	t.Run("Companies", testCompaniesUpdate)
+	t.Run("Resumes", testResumesUpdate)
+	t.Run("Goauths", testGoauthsUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
-	t.Run("Resumes", testResumesSliceUpdateAll)
 	t.Run("Jobs", testJobsSliceUpdateAll)
 	t.Run("WorkReviews", testWorkReviewsSliceUpdateAll)
-	t.Run("Users", testUsersSliceUpdateAll)
 	t.Run("ResumeReviews", testResumeReviewsSliceUpdateAll)
 	t.Run("WorksFors", testWorksForsSliceUpdateAll)
 	t.Run("Students", testStudentsSliceUpdateAll)
+	t.Run("Users", testUsersSliceUpdateAll)
 	t.Run("Companies", testCompaniesSliceUpdateAll)
+	t.Run("Resumes", testResumesSliceUpdateAll)
+	t.Run("Goauths", testGoauthsSliceUpdateAll)
 }
 
 func TestUpsert(t *testing.T) {
-	t.Run("Resumes", testResumesUpsert)
 	t.Run("Jobs", testJobsUpsert)
 	t.Run("WorkReviews", testWorkReviewsUpsert)
-	t.Run("Users", testUsersUpsert)
 	t.Run("ResumeReviews", testResumeReviewsUpsert)
 	t.Run("WorksFors", testWorksForsUpsert)
 	t.Run("Students", testStudentsUpsert)
+	t.Run("Users", testUsersUpsert)
 	t.Run("Companies", testCompaniesUpsert)
+	t.Run("Resumes", testResumesUpsert)
+	t.Run("Goauths", testGoauthsUpsert)
 }
