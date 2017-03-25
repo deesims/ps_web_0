@@ -232,7 +232,7 @@ ALTER TABLE user_id_seq OWNER TO coopcat_dev;
 -- Name: user; Type: TABLE; Schema: public; Owner: coopcat_dev
 --
 
-CREATE TABLE "user" (
+CREATE TABLE users (
     user_id numeric(19,0) DEFAULT nextval('user_id_seq'::regclass) NOT NULL,
     name character varying(100) NOT NULL,
     password character varying(250) NOT NULL,
@@ -243,7 +243,7 @@ CREATE TABLE "user" (
 );
 
 
-ALTER TABLE "user" OWNER TO coopcat_dev;
+ALTER TABLE users OWNER TO coopcat_dev;
 
 --
 -- Name: work_review; Type: TABLE; Schema: public; Owner: coopcat_dev
@@ -349,8 +349,8 @@ SELECT pg_catalog.setval('"resume_Resume_ID_seq"', 1, false);
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
-INSERT INTO "user" (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 1);
-INSERT INTO "user" (user_id, name, password, email, address, role) VALUES (6, 'John Doe2', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 1);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
 
 
 --
@@ -376,7 +376,7 @@ SELECT pg_catalog.setval('user_id_seq', 6, true);
 -- Name: user USER_pkey; Type: CONSTRAINT; Schema: public; Owner: coopcat_dev
 --
 
-ALTER TABLE ONLY "user"
+ALTER TABLE ONLY users
     ADD CONSTRAINT "USER_pkey" PRIMARY KEY (user_id);
 
 
@@ -440,7 +440,7 @@ ALTER TABLE ONLY works_for
 -- Name: user_email_uindex; Type: INDEX; Schema: public; Owner: coopcat_dev
 --
 
-CREATE UNIQUE INDEX user_email_uindex ON "user" USING btree (email);
+CREATE UNIQUE INDEX user_email_uindex ON users USING btree (email);
 
 
 --
@@ -455,7 +455,7 @@ CREATE TRIGGER update_num_available_positions_trigger AFTER INSERT ON works_for 
 --
 
 ALTER TABLE ONLY resume_review
-    ADD CONSTRAINT fkreviews794469 FOREIGN KEY (moderator_id) REFERENCES "user"(user_id);
+    ADD CONSTRAINT fkreviews794469 FOREIGN KEY (moderator_id) REFERENCES users(user_id);
 
 
 --
@@ -463,7 +463,7 @@ ALTER TABLE ONLY resume_review
 --
 
 ALTER TABLE ONLY student
-    ADD CONSTRAINT fkstudent664699 FOREIGN KEY (user_id) REFERENCES "user"(user_id) ON DELETE CASCADE;
+    ADD CONSTRAINT fkstudent664699 FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE;
 
 
 --
@@ -479,7 +479,7 @@ ALTER TABLE ONLY job
 --
 
 ALTER TABLE ONLY resume
-    ADD CONSTRAINT resume_user_id_fk FOREIGN KEY (author_id) REFERENCES "user"(user_id);
+    ADD CONSTRAINT resume_user_id_fk FOREIGN KEY (author_id) REFERENCES users(user_id);
 
 
 --
@@ -495,7 +495,7 @@ ALTER TABLE ONLY works_for
 --
 
 ALTER TABLE ONLY works_for
-    ADD CONSTRAINT works_for_user_user_id_fk FOREIGN KEY (user_id) REFERENCES "user"(user_id);
+    ADD CONSTRAINT works_for_user_user_id_fk FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 
 --

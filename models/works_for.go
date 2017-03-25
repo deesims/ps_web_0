@@ -356,7 +356,7 @@ func (o *WorksFor) User(exec boil.Executor, mods ...qm.QueryMod) userQuery {
 	queryMods = append(queryMods, mods...)
 
 	query := Users(exec, queryMods...)
-	queries.SetFrom(query.Query, "\"user\"")
+	queries.SetFrom(query.Query, "\"users\"")
 
 	return query
 }
@@ -469,7 +469,7 @@ func (worksForL) LoadUser(e boil.Executor, singular bool, maybeWorksFor interfac
 	}
 
 	query := fmt.Sprintf(
-		"select * from \"user\" where \"user_id\" in (%s)",
+		"select * from \"users\" where \"user_id\" in (%s)",
 		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
 	)
 

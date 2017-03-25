@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/apexskier/httpauth"
-	"github.com/deesims/ps_web_0/db"
-	"github.com/deesims/ps_web_0/view"
+	"ps_web_0/db"
+	"ps_web_0/view"
 	"github.com/gorilla/mux"
 )
 

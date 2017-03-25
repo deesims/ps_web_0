@@ -238,7 +238,7 @@ func (q userQuery) One() (*User, error) {
 		if errors.Cause(err) == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for user")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for users")
 	}
 
 	if err := o.doAfterSelectHooks(queries.GetExecutor(q.Query)); err != nil {
@@ -297,7 +297,7 @@ func (q userQuery) Count() (int64, error) {
 
 	err := q.Query.QueryRow().Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count user rows")
+		return 0, errors.Wrap(err, "models: failed to count users rows")
 	}
 
 	return count, nil
@@ -322,7 +322,7 @@ func (q userQuery) Exists() (bool, error) {
 
 	err := q.Query.QueryRow().Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if user exists")
+		return false, errors.Wrap(err, "models: failed to check if users exists")
 	}
 
 	return count > 0, nil
@@ -1051,7 +1051,7 @@ func UsersG(mods ...qm.QueryMod) userQuery {
 
 // Users retrieves all the records using an executor.
 func Users(exec boil.Executor, mods ...qm.QueryMod) userQuery {
-	mods = append(mods, qm.From("\"user\""))
+	mods = append(mods, qm.From("\"users\""))
 	return userQuery{NewQuery(exec, mods...)}
 }
 
@@ -1080,7 +1080,7 @@ func FindUser(exec boil.Executor, userID float64, selectCols ...string) (*User, 
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"user\" where \"user_id\"=$1", sel,
+		"select %s from \"users\" where \"user_id\"=$1", sel,
 	)
 
 	q := queries.Raw(exec, query, userID)
@@ -1090,7 +1090,7 @@ func FindUser(exec boil.Executor, userID float64, selectCols ...string) (*User, 
 		if errors.Cause(err) == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from user")
+		return nil, errors.Wrap(err, "models: unable to select from users")
 	}
 
 	return userObj, nil
@@ -1134,7 +1134,7 @@ func (o *User) InsertP(exec boil.Executor, whitelist ...string) {
 // - All columns with a default, but non-zero are included (i.e. health = 75)
 func (o *User) Insert(exec boil.Executor, whitelist ...string) error {
 	if o == nil {
-		return errors.New("models: no user provided for insertion")
+		return errors.New("models: no users provided for insertion")
 	}
 
 	var err error
@@ -1168,9 +1168,9 @@ func (o *User) Insert(exec boil.Executor, whitelist ...string) error {
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"user\" (\"%s\") VALUES (%s)", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.IndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"users\" (\"%s\") VALUES (%s)", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.IndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"user\" DEFAULT VALUES"
+			cache.query = "INSERT INTO \"users\" DEFAULT VALUES"
 		}
 
 		if len(cache.retMapping) != 0 {
@@ -1193,7 +1193,7 @@ func (o *User) Insert(exec boil.Executor, whitelist ...string) error {
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into user")
+		return errors.Wrap(err, "models: unable to insert into users")
 	}
 
 	if !cached {
@@ -1252,10 +1252,10 @@ func (o *User) Update(exec boil.Executor, whitelist ...string) error {
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return errors.New("models: unable to update user, could not build whitelist")
+			return errors.New("models: unable to update users, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"user\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"users\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 			strmangle.WhereClause("\"", "\"", len(wl)+1, userPrimaryKeyColumns),
 		)
@@ -1274,7 +1274,7 @@ func (o *User) Update(exec boil.Executor, whitelist ...string) error {
 
 	_, err = exec.Exec(cache.query, values...)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to update user row")
+		return errors.Wrap(err, "models: unable to update users row")
 	}
 
 	if !cached {
@@ -1299,7 +1299,7 @@ func (q userQuery) UpdateAll(cols M) error {
 
 	_, err := q.Query.Exec()
 	if err != nil {
-		return errors.Wrap(err, "models: unable to update all for user")
+		return errors.Wrap(err, "models: unable to update all for users")
 	}
 
 	return nil
@@ -1352,7 +1352,7 @@ func (o UserSlice) UpdateAll(exec boil.Executor, cols M) error {
 	}
 
 	sql := fmt.Sprintf(
-		"UPDATE \"user\" SET %s WHERE (\"user_id\") IN (%s)",
+		"UPDATE \"users\" SET %s WHERE (\"user_id\") IN (%s)",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
 		strmangle.Placeholders(dialect.IndexPlaceholders, len(o)*len(userPrimaryKeyColumns), len(colNames)+1, len(userPrimaryKeyColumns)),
 	)
@@ -1393,7 +1393,7 @@ func (o *User) UpsertP(exec boil.Executor, updateOnConflict bool, conflictColumn
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
 func (o *User) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns []string, updateColumns []string, whitelist ...string) error {
 	if o == nil {
-		return errors.New("models: no user provided for upsert")
+		return errors.New("models: no users provided for upsert")
 	}
 
 	if err := o.doBeforeUpsertHooks(exec); err != nil {
@@ -1449,7 +1449,7 @@ func (o *User) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns
 			updateColumns,
 		)
 		if len(update) == 0 {
-			return errors.New("models: unable to upsert user, could not build update column list")
+			return errors.New("models: unable to upsert users, could not build update column list")
 		}
 
 		conflict := conflictColumns
@@ -1457,7 +1457,7 @@ func (o *User) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns
 			conflict = make([]string, len(userPrimaryKeyColumns))
 			copy(conflict, userPrimaryKeyColumns)
 		}
-		cache.query = queries.BuildUpsertQueryPostgres(dialect, "\"user\"", updateOnConflict, ret, update, conflict, whitelist)
+		cache.query = queries.BuildUpsertQueryPostgres(dialect, "\"users\"", updateOnConflict, ret, update, conflict, whitelist)
 
 		cache.valueMapping, err = queries.BindMapping(userType, userMapping, whitelist)
 		if err != nil {
@@ -1492,7 +1492,7 @@ func (o *User) Upsert(exec boil.Executor, updateOnConflict bool, conflictColumns
 		_, err = exec.Exec(cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert user")
+		return errors.Wrap(err, "models: unable to upsert users")
 	}
 
 	if !cached {
@@ -1544,7 +1544,7 @@ func (o *User) Delete(exec boil.Executor) error {
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userPrimaryKeyMapping)
-	sql := "DELETE FROM \"user\" WHERE \"user_id\"=$1"
+	sql := "DELETE FROM \"users\" WHERE \"user_id\"=$1"
 
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, sql)
@@ -1553,7 +1553,7 @@ func (o *User) Delete(exec boil.Executor) error {
 
 	_, err := exec.Exec(sql, args...)
 	if err != nil {
-		return errors.Wrap(err, "models: unable to delete from user")
+		return errors.Wrap(err, "models: unable to delete from users")
 	}
 
 	if err := o.doAfterDeleteHooks(exec); err != nil {
@@ -1580,7 +1580,7 @@ func (q userQuery) DeleteAll() error {
 
 	_, err := q.Query.Exec()
 	if err != nil {
-		return errors.Wrap(err, "models: unable to delete all from user")
+		return errors.Wrap(err, "models: unable to delete all from users")
 	}
 
 	return nil
@@ -1633,7 +1633,7 @@ func (o UserSlice) DeleteAll(exec boil.Executor) error {
 	}
 
 	sql := fmt.Sprintf(
-		"DELETE FROM \"user\" WHERE (%s) IN (%s)",
+		"DELETE FROM \"users\" WHERE (%s) IN (%s)",
 		strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, userPrimaryKeyColumns), ","),
 		strmangle.Placeholders(dialect.IndexPlaceholders, len(o)*len(userPrimaryKeyColumns), 1, len(userPrimaryKeyColumns)),
 	)
@@ -1737,7 +1737,7 @@ func (o *UserSlice) ReloadAll(exec boil.Executor) error {
 	}
 
 	sql := fmt.Sprintf(
-		"SELECT \"user\".* FROM \"user\" WHERE (%s) IN (%s)",
+		"SELECT \"users\".* FROM \"users\" WHERE (%s) IN (%s)",
 		strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, userPrimaryKeyColumns), ","),
 		strmangle.Placeholders(dialect.IndexPlaceholders, len(*o)*len(userPrimaryKeyColumns), 1, len(userPrimaryKeyColumns)),
 	)
@@ -1758,7 +1758,7 @@ func (o *UserSlice) ReloadAll(exec boil.Executor) error {
 func UserExists(exec boil.Executor, userID float64) (bool, error) {
 	var exists bool
 
-	sql := "select exists(select 1 from \"user\" where \"user_id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"users\" where \"user_id\"=$1 limit 1)"
 
 	if boil.DebugMode {
 		fmt.Fprintln(boil.DebugWriter, sql)
@@ -1769,7 +1769,7 @@ func UserExists(exec boil.Executor, userID float64) (bool, error) {
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if user exists")
+		return false, errors.Wrap(err, "models: unable to check if users exists")
 	}
 
 	return exists, nil

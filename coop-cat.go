@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/deesims/ps_web_0/controller"
+	"ps_web_0/controller"
 )
 
 //go:generate sqlboiler postgres --wipe

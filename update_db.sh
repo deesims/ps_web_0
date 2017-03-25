@@ -1,5 +1,6 @@
 #!bin/bash
 
-psql -d postgres -f database_dump.sql
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
 
-
+sudo -u postgres -H sh -c "psql -d postgres -a -f $SCRIPTPATH/database_dump.sql"
