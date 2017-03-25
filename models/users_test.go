@@ -572,78 +572,6 @@ func testUserOneToOneSetOpStudentUsingStudent(t *testing.T) {
 		}
 	}
 }
-func testUserToManyAuthorResumes(t *testing.T) {
-	var err error
-	tx := MustTx(boil.Begin())
-	defer tx.Rollback()
-
-	var a User
-	var b, c Resume
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, true, userColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize User struct: %s", err)
-	}
-
-	if err := a.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-
-	randomize.Struct(seed, &b, resumeDBTypes, false, resumeColumnsWithDefault...)
-	randomize.Struct(seed, &c, resumeDBTypes, false, resumeColumnsWithDefault...)
-
-	b.AuthorID = a.UserID
-	c.AuthorID = a.UserID
-	if err = b.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(tx); err != nil {
-		t.Fatal(err)
-	}
-
-	resume, err := a.AuthorResumes(tx).All()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	bFound, cFound := false, false
-	for _, v := range resume {
-		if v.AuthorID == b.AuthorID {
-			bFound = true
-		}
-		if v.AuthorID == c.AuthorID {
-			cFound = true
-		}
-	}
-
-	if !bFound {
-		t.Error("expected to find b")
-	}
-	if !cFound {
-		t.Error("expected to find c")
-	}
-
-	slice := UserSlice{&a}
-	if err = a.L.LoadAuthorResumes(tx, false, &slice); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.AuthorResumes); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	a.R.AuthorResumes = nil
-	if err = a.L.LoadAuthorResumes(tx, true, &a); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.AuthorResumes); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	if t.Failed() {
-		t.Logf("%#v", resume)
-	}
-}
-
 func testUserToManyModeratorResumeReviews(t *testing.T) {
 	var err error
 	tx := MustTx(boil.Begin())
@@ -788,29 +716,28 @@ func testUserToManyWorksFors(t *testing.T) {
 	}
 }
 
-func testUserToManyAddOpAuthorResumes(t *testing.T) {
+func testUserToManyAuthorResumes(t *testing.T) {
 	var err error
-
 	tx := MustTx(boil.Begin())
 	defer tx.Rollback()
 
 	var a User
-	var b, c, d, e Resume
+	var b, c Resume
 
 	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*Resume{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, resumeDBTypes, false, strmangle.SetComplement(resumePrimaryKeyColumns, resumeColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
+	if err = randomize.Struct(seed, &a, userDBTypes, true, userColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize User struct: %s", err)
 	}
 
 	if err := a.Insert(tx); err != nil {
 		t.Fatal(err)
 	}
+
+	randomize.Struct(seed, &b, resumeDBTypes, false, resumeColumnsWithDefault...)
+	randomize.Struct(seed, &c, resumeDBTypes, false, resumeColumnsWithDefault...)
+
+	b.AuthorID = a.UserID
+	c.AuthorID = a.UserID
 	if err = b.Insert(tx); err != nil {
 		t.Fatal(err)
 	}
@@ -818,50 +745,49 @@ func testUserToManyAddOpAuthorResumes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	foreignersSplitByInsertion := [][]*Resume{
-		{&b, &c},
-		{&d, &e},
+	resume, err := a.AuthorResumes(tx).All()
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	for i, x := range foreignersSplitByInsertion {
-		err = a.AddAuthorResumes(tx, i != 0, x...)
-		if err != nil {
-			t.Fatal(err)
+	bFound, cFound := false, false
+	for _, v := range resume {
+		if v.AuthorID == b.AuthorID {
+			bFound = true
 		}
+		if v.AuthorID == c.AuthorID {
+			cFound = true
+		}
+	}
 
-		first := x[0]
-		second := x[1]
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
 
-		if a.UserID != first.AuthorID {
-			t.Error("foreign key was wrong value", a.UserID, first.AuthorID)
-		}
-		if a.UserID != second.AuthorID {
-			t.Error("foreign key was wrong value", a.UserID, second.AuthorID)
-		}
+	slice := UserSlice{&a}
+	if err = a.L.LoadAuthorResumes(tx, false, &slice); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.AuthorResumes); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
 
-		if first.R.Author != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-		if second.R.Author != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
+	a.R.AuthorResumes = nil
+	if err = a.L.LoadAuthorResumes(tx, true, &a); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.AuthorResumes); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
 
-		if a.R.AuthorResumes[i*2] != first {
-			t.Error("relationship struct slice not set to correct value")
-		}
-		if a.R.AuthorResumes[i*2+1] != second {
-			t.Error("relationship struct slice not set to correct value")
-		}
-
-		count, err := a.AuthorResumes(tx).Count()
-		if err != nil {
-			t.Fatal(err)
-		}
-		if want := int64((i + 1) * 2); count != want {
-			t.Error("want", want, "got", count)
-		}
+	if t.Failed() {
+		t.Logf("%#v", resume)
 	}
 }
+
 func testUserToManyAddOpModeratorResumeReviews(t *testing.T) {
 	var err error
 
@@ -1002,6 +928,80 @@ func testUserToManyAddOpWorksFors(t *testing.T) {
 		}
 
 		count, err := a.WorksFors(tx).Count()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
+func testUserToManyAddOpAuthorResumes(t *testing.T) {
+	var err error
+
+	tx := MustTx(boil.Begin())
+	defer tx.Rollback()
+
+	var a User
+	var b, c, d, e Resume
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, userDBTypes, false, strmangle.SetComplement(userPrimaryKeyColumns, userColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*Resume{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, resumeDBTypes, false, strmangle.SetComplement(resumePrimaryKeyColumns, resumeColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(tx); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*Resume{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddAuthorResumes(tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.UserID != first.AuthorID {
+			t.Error("foreign key was wrong value", a.UserID, first.AuthorID)
+		}
+		if a.UserID != second.AuthorID {
+			t.Error("foreign key was wrong value", a.UserID, second.AuthorID)
+		}
+
+		if first.R.Author != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Author != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.AuthorResumes[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.AuthorResumes[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.AuthorResumes(tx).Count()
 		if err != nil {
 			t.Fatal(err)
 		}

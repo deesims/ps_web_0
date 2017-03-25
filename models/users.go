@@ -28,7 +28,7 @@ type User struct {
 	Password string      `boil:"password" json:"password" toml:"password" yaml:"password"`
 	Email    string      `boil:"email" json:"email" toml:"email" yaml:"email"`
 	Address  null.String `boil:"address" json:"address,omitempty" toml:"address" yaml:"address,omitempty"`
-	Role     null.Int    `boil:"role" json:"role,omitempty" toml:"role" yaml:"role,omitempty"`
+	Role     int         `boil:"role" json:"role" toml:"role" yaml:"role"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -37,9 +37,9 @@ type User struct {
 // userR is where relationships are stored.
 type userR struct {
 	Student                *Student
-	AuthorResumes          ResumeSlice
 	ModeratorResumeReviews ResumeReviewSlice
 	WorksFors              WorksForSlice
+	AuthorResumes          ResumeSlice
 }
 
 // userL is where Load methods for each relationship are stored.
@@ -47,8 +47,8 @@ type userL struct{}
 
 var (
 	userColumns               = []string{"user_id", "name", "password", "email", "address", "role"}
-	userColumnsWithoutDefault = []string{"name", "password", "email", "address", "role"}
-	userColumnsWithDefault    = []string{"user_id"}
+	userColumnsWithoutDefault = []string{"name", "password", "email", "address"}
+	userColumnsWithDefault    = []string{"user_id", "role"}
 	userPrimaryKeyColumns     = []string{"user_id"}
 )
 
@@ -347,30 +347,6 @@ func (o *User) Student(exec boil.Executor, mods ...qm.QueryMod) studentQuery {
 	return query
 }
 
-// AuthorResumesG retrieves all the resume's resume via author_id column.
-func (o *User) AuthorResumesG(mods ...qm.QueryMod) resumeQuery {
-	return o.AuthorResumes(boil.GetDB(), mods...)
-}
-
-// AuthorResumes retrieves all the resume's resume with an executor via author_id column.
-func (o *User) AuthorResumes(exec boil.Executor, mods ...qm.QueryMod) resumeQuery {
-	queryMods := []qm.QueryMod{
-		qm.Select("\"a\".*"),
-	}
-
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"a\".\"author_id\"=?", o.UserID),
-	)
-
-	query := Resumes(exec, queryMods...)
-	queries.SetFrom(query.Query, "\"resume\" as \"a\"")
-	return query
-}
-
 // ModeratorResumeReviewsG retrieves all the resume_review's resume review via moderator_id column.
 func (o *User) ModeratorResumeReviewsG(mods ...qm.QueryMod) resumeReviewQuery {
 	return o.ModeratorResumeReviews(boil.GetDB(), mods...)
@@ -416,6 +392,30 @@ func (o *User) WorksFors(exec boil.Executor, mods ...qm.QueryMod) worksForQuery 
 
 	query := WorksFors(exec, queryMods...)
 	queries.SetFrom(query.Query, "\"works_for\" as \"a\"")
+	return query
+}
+
+// AuthorResumesG retrieves all the resume's resume via author_id column.
+func (o *User) AuthorResumesG(mods ...qm.QueryMod) resumeQuery {
+	return o.AuthorResumes(boil.GetDB(), mods...)
+}
+
+// AuthorResumes retrieves all the resume's resume with an executor via author_id column.
+func (o *User) AuthorResumes(exec boil.Executor, mods ...qm.QueryMod) resumeQuery {
+	queryMods := []qm.QueryMod{
+		qm.Select("\"a\".*"),
+	}
+
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"a\".\"author_id\"=?", o.UserID),
+	)
+
+	query := Resumes(exec, queryMods...)
+	queries.SetFrom(query.Query, "\"resume\" as \"a\"")
 	return query
 }
 
@@ -489,78 +489,6 @@ func (userL) LoadStudent(e boil.Executor, singular bool, maybeUser interface{}) 
 		for _, foreign := range resultSlice {
 			if local.UserID == foreign.UserID {
 				local.R.Student = foreign
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadAuthorResumes allows an eager lookup of values, cached into the
-// loaded structs of the objects.
-func (userL) LoadAuthorResumes(e boil.Executor, singular bool, maybeUser interface{}) error {
-	var slice []*User
-	var object *User
-
-	count := 1
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*UserSlice)
-		count = len(slice)
-	}
-
-	args := make([]interface{}, count)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args[0] = object.UserID
-	} else {
-		for i, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-			args[i] = obj.UserID
-		}
-	}
-
-	query := fmt.Sprintf(
-		"select * from \"resume\" where \"author_id\" in (%s)",
-		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
-	)
-	if boil.DebugMode {
-		fmt.Fprintf(boil.DebugWriter, "%s\n%v\n", query, args)
-	}
-
-	results, err := e.Query(query, args...)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load resume")
-	}
-	defer results.Close()
-
-	var resultSlice []*Resume
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice resume")
-	}
-
-	if len(resumeAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.AuthorResumes = resultSlice
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.UserID == foreign.AuthorID {
-				local.R.AuthorResumes = append(local.R.AuthorResumes, foreign)
 				break
 			}
 		}
@@ -713,6 +641,78 @@ func (userL) LoadWorksFors(e boil.Executor, singular bool, maybeUser interface{}
 	return nil
 }
 
+// LoadAuthorResumes allows an eager lookup of values, cached into the
+// loaded structs of the objects.
+func (userL) LoadAuthorResumes(e boil.Executor, singular bool, maybeUser interface{}) error {
+	var slice []*User
+	var object *User
+
+	count := 1
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*UserSlice)
+		count = len(slice)
+	}
+
+	args := make([]interface{}, count)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args[0] = object.UserID
+	} else {
+		for i, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+			args[i] = obj.UserID
+		}
+	}
+
+	query := fmt.Sprintf(
+		"select * from \"resume\" where \"author_id\" in (%s)",
+		strmangle.Placeholders(dialect.IndexPlaceholders, count, 1, 1),
+	)
+	if boil.DebugMode {
+		fmt.Fprintf(boil.DebugWriter, "%s\n%v\n", query, args)
+	}
+
+	results, err := e.Query(query, args...)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load resume")
+	}
+	defer results.Close()
+
+	var resultSlice []*Resume
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice resume")
+	}
+
+	if len(resumeAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.AuthorResumes = resultSlice
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.UserID == foreign.AuthorID {
+				local.R.AuthorResumes = append(local.R.AuthorResumes, foreign)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetStudentG of the user to the related item.
 // Sets o.R.Student to related.
 // Adds o to related.R.User.
@@ -788,90 +788,6 @@ func (o *User) SetStudent(exec boil.Executor, insert bool, related *Student) err
 		}
 	} else {
 		related.R.User = o
-	}
-	return nil
-}
-
-// AddAuthorResumesG adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.AuthorResumes.
-// Sets related.R.Author appropriately.
-// Uses the global database handle.
-func (o *User) AddAuthorResumesG(insert bool, related ...*Resume) error {
-	return o.AddAuthorResumes(boil.GetDB(), insert, related...)
-}
-
-// AddAuthorResumesP adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.AuthorResumes.
-// Sets related.R.Author appropriately.
-// Panics on error.
-func (o *User) AddAuthorResumesP(exec boil.Executor, insert bool, related ...*Resume) {
-	if err := o.AddAuthorResumes(exec, insert, related...); err != nil {
-		panic(boil.WrapErr(err))
-	}
-}
-
-// AddAuthorResumesGP adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.AuthorResumes.
-// Sets related.R.Author appropriately.
-// Uses the global database handle and panics on error.
-func (o *User) AddAuthorResumesGP(insert bool, related ...*Resume) {
-	if err := o.AddAuthorResumes(boil.GetDB(), insert, related...); err != nil {
-		panic(boil.WrapErr(err))
-	}
-}
-
-// AddAuthorResumes adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.AuthorResumes.
-// Sets related.R.Author appropriately.
-func (o *User) AddAuthorResumes(exec boil.Executor, insert bool, related ...*Resume) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.AuthorID = o.UserID
-			if err = rel.Insert(exec); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"resume\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"author_id"}),
-				strmangle.WhereClause("\"", "\"", 2, resumePrimaryKeyColumns),
-			)
-			values := []interface{}{o.UserID, rel.ResumeID, rel.AuthorID}
-
-			if boil.DebugMode {
-				fmt.Fprintln(boil.DebugWriter, updateQuery)
-				fmt.Fprintln(boil.DebugWriter, values)
-			}
-
-			if _, err = exec.Exec(updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.AuthorID = o.UserID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			AuthorResumes: related,
-		}
-	} else {
-		o.R.AuthorResumes = append(o.R.AuthorResumes, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &resumeR{
-				Author: o,
-			}
-		} else {
-			rel.R.Author = o
-		}
 	}
 	return nil
 }
@@ -1039,6 +955,90 @@ func (o *User) AddWorksFors(exec boil.Executor, insert bool, related ...*WorksFo
 			}
 		} else {
 			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddAuthorResumesG adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.AuthorResumes.
+// Sets related.R.Author appropriately.
+// Uses the global database handle.
+func (o *User) AddAuthorResumesG(insert bool, related ...*Resume) error {
+	return o.AddAuthorResumes(boil.GetDB(), insert, related...)
+}
+
+// AddAuthorResumesP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.AuthorResumes.
+// Sets related.R.Author appropriately.
+// Panics on error.
+func (o *User) AddAuthorResumesP(exec boil.Executor, insert bool, related ...*Resume) {
+	if err := o.AddAuthorResumes(exec, insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddAuthorResumesGP adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.AuthorResumes.
+// Sets related.R.Author appropriately.
+// Uses the global database handle and panics on error.
+func (o *User) AddAuthorResumesGP(insert bool, related ...*Resume) {
+	if err := o.AddAuthorResumes(boil.GetDB(), insert, related...); err != nil {
+		panic(boil.WrapErr(err))
+	}
+}
+
+// AddAuthorResumes adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.AuthorResumes.
+// Sets related.R.Author appropriately.
+func (o *User) AddAuthorResumes(exec boil.Executor, insert bool, related ...*Resume) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.AuthorID = o.UserID
+			if err = rel.Insert(exec); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"resume\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"author_id"}),
+				strmangle.WhereClause("\"", "\"", 2, resumePrimaryKeyColumns),
+			)
+			values := []interface{}{o.UserID, rel.ResumeID, rel.AuthorID}
+
+			if boil.DebugMode {
+				fmt.Fprintln(boil.DebugWriter, updateQuery)
+				fmt.Fprintln(boil.DebugWriter, values)
+			}
+
+			if _, err = exec.Exec(updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.AuthorID = o.UserID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			AuthorResumes: related,
+		}
+	} else {
+		o.R.AuthorResumes = append(o.R.AuthorResumes, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &resumeR{
+				Author: o,
+			}
+		} else {
+			rel.R.Author = o
 		}
 	}
 	return nil
