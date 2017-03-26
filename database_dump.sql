@@ -50,6 +50,23 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
+-- Name: getalljobswithcompanyname(); Type: FUNCTION; Schema: public; Owner: coopcat_dev
+--
+
+CREATE FUNCTION getalljobswithcompanyname() RETURNS TABLE(job_id numeric, company_id numeric, companyname character varying, name character varying, rating integer, student_level integer, num_of_positions integer, deadline_date date, num_available_positions integer)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+		RETURN QUERY
+      SELECT j.job_id, j.company_id, c.name AS CompanyName, j.name, j.rating, j.student_level, j.num_of_positions, j.deadline_date, j.num_available_positions
+      FROM job j JOIN company c ON j.company_id = c.company_id;
+	END;
+$$;
+
+
+ALTER FUNCTION public.getalljobswithcompanyname() OWNER TO coopcat_dev;
+
+--
 -- Name: update_num_available_positions(); Type: FUNCTION; Schema: public; Owner: coopcat_dev
 --
 
@@ -132,10 +149,10 @@ CREATE TABLE job (
     company_id numeric(19,0) NOT NULL,
     name character varying(100),
     rating integer,
-    student_level integer,
+    student_level integer NOT NULL,
     num_of_positions integer NOT NULL,
     deadline_date date NOT NULL,
-    num_available_positions integer
+    num_available_positions integer NOT NULL
 );
 
 
@@ -310,33 +327,37 @@ ALTER TABLE ONLY resume ALTER COLUMN resume_id SET DEFAULT nextval('"resume_Resu
 -- Data for Name: company; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
+INSERT INTO company (company_id, name, description, num_employees) VALUES (1, 'Company1', 'The Cool Company', 5);
+INSERT INTO company (company_id, name, description, num_employees) VALUES (2, 'Company2', 'The Cooler Company', 2);
+INSERT INTO company (company_id, name, description, num_employees) VALUES (4, 'Test', 'ASD', 6);
 
 
 --
 -- Name: company_company_id_seq; Type: SEQUENCE SET; Schema: public; Owner: coopcat_dev
 --
 
-SELECT pg_catalog.setval('company_company_id_seq', 1, false);
+SELECT pg_catalog.setval('company_company_id_seq', 4, true);
 
 
 --
 -- Data for Name: goauth; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
-INSERT INTO goauth (username, email, hash, role) VALUES ('roko', 'admin@localhost.com', '$2a$10$J8z2A8EEV8KZIyvn77lqpe87LfSJZYaSnqcF/I3dLkGJzK7eFJQii', 'admin');
+INSERT INTO goauth (username, email, hash, role) VALUES ('roko', 'admin@localhost.com', '$2a$10$wZxxyNNchiiSXOpF1/0ZzOvP0amHUlisRFvauuyzvdYJnS7YMcs5a', 'admin');
 
 
 --
 -- Data for Name: job; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
+INSERT INTO job (job_id, company_id, name, rating, student_level, num_of_positions, deadline_date, num_available_positions) VALUES (8, 1, 'Golang Developer', NULL, 2, 10, '2017-12-12', 9);
 
 
 --
 -- Name: job_job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: coopcat_dev
 --
 
-SELECT pg_catalog.setval('job_job_id_seq', 1, false);
+SELECT pg_catalog.setval('job_job_id_seq', 8, true);
 
 
 --
@@ -376,8 +397,8 @@ SELECT pg_catalog.setval('user_id_seq', 7, true);
 --
 
 INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 0);
-INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2 The Mod', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
 INSERT INTO users (user_id, name, password, email, address, role) VALUES (7, 'John Doe The Admin', 'password', 'johnny@gmail.com', '123 North Street', 2);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2 The Mod', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
 
 
 --
