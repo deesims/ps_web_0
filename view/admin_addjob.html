@@ -1,0 +1,91 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<head></head>
+<body>
+
+{{ template "admin_header" }}
+
+<h1>Add Job</h1>
+{{if .notification }}
+<h3>{{.notification}}</h3>
+{{end}}
+
+<style>
+    DIV.table {
+        display: table;
+    }
+
+    FORM.tr, DIV.tr {
+        display: table-row;
+    }
+
+    SPAN.td {
+        display: table-cell;
+    }
+
+    SPAN.th {
+        display: table-cell;
+        font-weight: bold;
+    }
+</style>
+
+<div class="table">
+    <div class="tr">
+        <span class="th">Name</span>
+        <span class="th">Company</span>
+        <span class="th">Student Level</span>
+        <span class="th">Num Positions</span>
+        <span class="th">Application Deadline</span>
+        <span class="th">Available Positions</span>
+        <span class="th"></span> <!-- Save -->
+    </div>
+
+    <form class="tr" method="post">
+        <input type="hidden" name="JobID" value="0">
+        <span class="td"><input type="text" name="Name" placeholder="Name"></span>
+        <span class="td"> <!-- Company -->
+            <select name="CompanyID">
+                {{range .Companies}}
+                <option value="{{.CompanyID}}">{{.Name}}</option>
+                {{end}}
+            </select>
+        </span>
+        <span class="td"><input type="number" name="StudentLevel" placeholder="Student Level"></span> <!-- Student Level -->
+        <span class="td"><input type="number" name="NumOfPositions" placeholder="Num Positions"></span> <!-- Num Positions -->
+        <span class="td"><input type="date" name="DeadlineDate" placeholder="yyyy-mm-dd"></span> <!-- Deadline -->
+        <span class="td"><input type="number" name="NumAvailablePositions" placeholder="# Available Positions"></span> <!-- Num Available Positions -->
+        <span class="td"><input type="submit" value="Save"></span>
+    </form>
+</div>
+
+<!-- We Can problably use a template to remove duplicate add and list-->
+<div class="table" id="mainTable">
+    <div class="tr">
+        <span class="th">Name</span>
+        <span class="th">Company</span>
+        <span class="th">Student Level</span>
+        <span class="th">Num Positions</span>
+        <span class="th">Application Deadline</span>
+        <span class="th">Available Positions</span>
+        <span class="th"></span> <!-- Save -->
+    </div>
+
+    {{ range .Jobs }}
+
+    <form class="tr" method="post">
+        <input type="hidden" name="JobID" value="0">
+        <span class="td"><input type="text" name="Name" placeholder="Name" value="{{.Name}}"></span>
+        <span class="td">{{.CompanyName}}</span>
+        <span class="td"><input type="number" name="StudentLevel" placeholder="Student Level" value="{{.StudentLevel}}"></span> <!-- Student Level -->
+        <span class="td"><input type="number" name="NumOfPositions" placeholder="Num Positions" value="{{.NumOfPositions}}"></span> <!-- Num Positions -->
+        <span class="td"><input type="date" name="DeadlineDate" placeholder="yyyy-mm-dd" value="{{.DeadlineDate}}"></span> <!-- Deadline -->
+        <span class="td"><input type="number" name="NumAvailablePositions" placeholder="# Available Positions" value="{{.NumAvailablePositions}}"></span> <!-- Num Available Positions -->
+        <span class="td"><input type="submit" value="Save"></span>
+    </form>
+
+    {{end}}
+</div>
+
+
+</body>
+</html>

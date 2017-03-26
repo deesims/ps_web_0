@@ -21,8 +21,11 @@ var (
 
 func registerRoutesToFuncs(r *mux.Router) {
 	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/admin", adminGET).Methods("GET")
-	r.HandleFunc("/admin", adminPOST).Methods("POST")
+
+	r.HandleFunc("/admin/roles", adminRoles).Methods("GET", "POST")
+	r.HandleFunc("/admin/addjob", adminAddJob).Methods("GET", "POST")
+	r.HandleFunc("/admin/companies", adminCompanies).Methods("GET", "POST")
+
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
 }

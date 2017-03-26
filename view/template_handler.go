@@ -12,7 +12,14 @@ var (
 )
 
 func init() {
-	templates, templateError = template.ParseFiles("view/login.html", "view/index.html", "view/admin.html")
+	templates, templateError = template.ParseFiles(
+		"view/login.html",
+		"view/index.html",
+		"view/admin_roles.html",
+		"view/admin_addjob.html",
+		"view/admin_companies.html",
+		"view/admin_header.html",
+	)
 	if templateError != nil {
 		panic(templateError)
 	}

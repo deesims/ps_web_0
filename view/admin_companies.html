@@ -1,0 +1,92 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<head></head>
+<body>
+
+{{ template "admin_header" }}
+
+<h1>Companies</h1>
+{{if .notification }}
+<h3>{{.notification}}</h3>
+{{end}}
+
+<style>
+    DIV.table
+    {
+        display:table;
+    }
+    FORM.tr, DIV.tr
+    {
+        display:table-row;
+    }
+    SPAN.td
+    {
+        display:table-cell;
+    }
+    SPAN.th {
+        display:table-cell;
+        font-weight: bold;
+    }
+</style>
+
+<h3>Add New Company</h3>
+<form class="tr" method="post">
+    <input type="hidden" name="CompanyID" value="0">
+    <span class="td">
+            <input type="text" class="name" name="Name" placeholder="Name"></span>
+    <span class="td"><input type="text" name="Description" placeholder="Description"></span>
+    <span class="td"><input type="number" name="NumEmployees" placeholder="# Employees"></span>
+    <span class="td"><input type="submit" value="Save"></span>
+</form>
+
+<br />
+
+<!--
+TODO
+<input id="searchInput" placeholder="Type To Filter">
+
+<br />
+<br />
+-->
+
+<div class="table" id="mainTable">
+    <div class="tr">
+        <span class="th">Name</span>
+        <span class="th">Description</span>
+        <span class="th"># Employees</span>
+    </div>
+{{range .Companies}}
+    <form class="tr" method="post">
+        <input type="hidden" name="CompanyID" value="{{.CompanyID}}">
+        <span class="td name">
+            <input type="text" name="Name" placeholder="Name" value="{{.Name}}"></span>
+        <span class="td"><input type="text" name="Description" placeholder="Description" value="{{.Description}}"></span>
+        <span class="td"><input type="number" name="NumEmployees" placeholder="# Employees" value="{{.NumEmployees}}"></span>
+        <span class="td"><input type="submit" value="Save"></span>
+    </form>
+{{end}}
+</div>
+
+<!--
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script>
+    jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
+        return function( elem ) {
+            return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
+
+    $("#searchInput").keyup(function () {
+        var rows = $("#mainTable").find(".tr").hide();
+        if (this.value.length) { //Something is written
+            rows.find(".name").filter(":Contains('" + this.value + "')").parent().show();
+        } else rows.show();
+    });
+</script>
+-->
+
+</body>
+</html>
