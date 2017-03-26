@@ -6,34 +6,85 @@ import (
 	"ps_web_0/db"
 	"fmt"
 	"strconv"
+	"ps_web_0/models"
+	"github.com/gorilla/schema"
+	"time"
 )
 
-const loggedInID  = "4"
 
-func adminGET(w http.ResponseWriter, r *http.Request) {
+func adminRoles(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
 
-	users, _ := db.GetAllUsers()
+	if r.Method == "POST" {
+		userIdInt, _ := strconv.Atoi(r.PostFormValue("UserId"))
+		userId := float64(userIdInt)
+		newRole, _ := strconv.Atoi(r.PostFormValue("role"))
 
+		returnedUser := db.UpdateRole(userId, newRole)
+
+		data["notification"] = fmt.Sprintf("Updated the role of %s", returnedUser.Name)
+	}
+	
+	users, _ := db.GetAllUsers()
 	data["Users"] = users
 
-	view.RenderTemplate(w, "admin", data)
+	view.RenderTemplate(w, "admin_roles", data)
 }
 
-func adminPOST(w http.ResponseWriter, r *http.Request) {
+func adminAddJob(w http.ResponseWriter, r *http.Request)  {
 	var data = make(map[string]interface{})
 
-	userIdInt, _ := strconv.Atoi(r.PostFormValue("UserId"))
-	userId := float64(userIdInt)
-	newRole, _ := strconv.Atoi(r.PostFormValue("role"))
+	if r.Method == "POST" {
+		returnedJob := new(models.Job)
+		r.ParseForm() //Need to call before r.PostForm
+		schema.NewDecoder().Decode(returnedJob, r.PostForm)
 
-	returnedUser := db.UpdateRole(userId, newRole)
+		//Have to manually parse date
+		deadlineDate, _ := time.Parse("2006-02-01", r.FormValue("DeadlineDate"))
+		returnedJob.DeadlineDate = deadlineDate
 
-	data["notification"] = fmt.Sprintf("Updated the role of %s", returnedUser.Name)
+		if returnedJob.JobID == 0 {
+			returnedJob.InsertG()
+		} else {
+			returnedJob.UpdateG()
+		}
 
-	users, _ := db.GetAllUsers()
+		data["notification"] = "Updated"
+	}
+	//To select the company from a list when adding a job
+	companies, _ := db.GetAllCompanies()
+	data["Companies"] = companies
 
-	data["Users"] = users
+	jobs, error := db.GetAllJobsWithCompanyName()
+	if error != nil {
+		panic(error)
+	}
 
-	view.RenderTemplate(w, "admin", data)
+	data["Jobs"] = jobs
+
+	view.RenderTemplate(w, "admin_addjob", data)
+}
+
+func adminCompanies(w http.ResponseWriter, r *http.Request)  {
+	var data = make(map[string]interface{})
+
+	if r.Method == "POST" {
+		returnedCompany := new(models.Company)
+		r.ParseForm() //Need to call before r.PostForm
+		schema.NewDecoder().Decode(returnedCompany, r.PostForm)
+
+
+		if returnedCompany.CompanyID == 0 {
+			returnedCompany.InsertG()
+		} else {
+			returnedCompany.UpdateG()
+		}
+
+		data["notification"] = "Updated"
+	}
+
+	companies, _ := db.GetAllCompanies()
+	data["Companies"] = companies
+
+	view.RenderTemplate(w, "admin_companies", data)
 }

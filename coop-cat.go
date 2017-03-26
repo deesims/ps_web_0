@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-//go:generate sqlboiler postgres --wipe
+//go:generate sqlboiler postgres --no-tests --wipe
 
 const hostAddress = "localhost:7388"
 

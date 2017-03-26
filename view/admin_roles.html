@@ -3,6 +3,8 @@
 <head></head>
 <body>
 
+{{ template "admin_header" }}
+
 <h1>Users</h1>
 {{if .notification }}
 <h3>{{.notification}}</h3>
@@ -21,13 +23,21 @@
     {
         display:table-cell;
     }
+    SPAN.th {
+        display:table-cell;
+        font-weight: bold;
+    }
 </style>
 
 <input id="searchInput" placeholder="Type To Filter">
 
 <div class="table" id="usersTable">
+    <div class="tr">
+        <span class="th">Name</span>
+        <span class="th">Role</span>
+    </div>
 {{range .Users}}
-    <form class="tr" method="post" action="/admin">
+    <form class="tr" method="post">
         <input type="hidden" name="UserId" value="{{.UserID}}">
         <span class="td name">{{.Name}}</span>
         <span class="td">
