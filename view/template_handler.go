@@ -19,6 +19,7 @@ func init() {
 		"view/admin_addjob.html",
 		"view/admin_companies.html",
 		"view/admin_header.html",
+		"view/moderator_summary.html",
 	)
 	if templateError != nil {
 		panic(templateError)
