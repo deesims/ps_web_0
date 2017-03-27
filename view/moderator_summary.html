@@ -9,5 +9,23 @@
 <h1>{{.notification}}</h1>
 {{end}}
 
+<table>
+    {{range .user_resumes}}
+    <tr>
+        <th>{{ (index . 0).User.Name }}</th>
+        <th>Your Comments</th>
+        <th>Posted On</th>
+    </tr>
+
+    {{range .}}
+    <tr>
+        <td><a href="{{.Resume.ResumePath}}" target="_blank">Download</a></td>
+        <td>{{.ResumeReview.Review}}</td>
+        <td>{{.FormattedDate}}</td>
+    </tr>
+    {{end}}
+    {{end}}
+</table>
+
 </body>
 </html>
