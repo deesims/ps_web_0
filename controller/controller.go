@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/apexskier/httpauth"
-	"ps_web_0/db"
-	"ps_web_0/view"
+	"github.com/ps_web_0/db"
+	"github.com/ps_web_0/view"
 	"github.com/gorilla/mux"
 )
 
@@ -25,6 +25,8 @@ func registerRoutesToFuncs(r *mux.Router) {
 	r.HandleFunc("/admin/roles", adminRoles).Methods("GET", "POST")
 	r.HandleFunc("/admin/addjob", adminAddJob).Methods("GET", "POST")
 	r.HandleFunc("/admin/companies", adminCompanies).Methods("GET", "POST")
+
+	r.HandleFunc("/moderator", moderatorResumeSummary).Methods("GET", "POST")
 
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
