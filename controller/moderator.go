@@ -12,9 +12,10 @@ const moderatorId  = 6
 func moderatorResumeSummary(w http.ResponseWriter, r *http.Request)  {
 	var data = make(map[string]interface{})
 
-
-	//db.GetModeratorResumes()
-	data["notification"] = "Resumes"
+	if r.Method == "POST" {
+		//TODO update review
+		data["notification"] = "Updated"
+	}
 
 	resumes := db.GetModeratorResumes(moderatorId)
 	var splitResumes = make(map[float64][]*db.UserResume)
@@ -23,8 +24,7 @@ func moderatorResumeSummary(w http.ResponseWriter, r *http.Request)  {
 		splitResumes[element.UserID] = append(splitResumes[element.UserID], element)
 	}
 
-	data["user_resumes"] = splitResumes
+	data["users_resumes"] = splitResumes
 
-	//db.GetModeratorResumes(moderatorId)[0].ResumeReview.Review
 	view.RenderTemplate(w, "moderator_summary", data)
 }
