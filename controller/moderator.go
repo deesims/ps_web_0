@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"ps_web_0/view"
 	"ps_web_0/db"
+	"ps_web_0/models"
+	"strconv"
 )
 
 //Update to logged in user
@@ -13,7 +15,15 @@ func moderatorResumeSummary(w http.ResponseWriter, r *http.Request)  {
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
-		//TODO update review
+		resumeId, _ := strconv.ParseFloat(r.PostFormValue("ResumeID"), 64)
+		moderatorId, _ := strconv.ParseFloat(r.PostFormValue("ModeratorID"), 64)
+
+		review := r.PostFormValue("Review")
+
+		resumeReview := models.FindResumeReviewGP(resumeId, moderatorId)
+		resumeReview.Review = review
+		resumeReview.UpdateGP()
+
 		data["notification"] = "Updated"
 	}
 
