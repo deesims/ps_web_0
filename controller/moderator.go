@@ -2,9 +2,9 @@ package controller
 
 import (
 	"net/http"
-	"ps_web_0/view"
-	"ps_web_0/db"
-	"ps_web_0/models"
+	"github.com/ps_web_0/view"
+	"github.com/ps_web_0/db"
+	"github.com/ps_web_0/models"
 	"strconv"
 )
 

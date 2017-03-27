@@ -1,7 +1,7 @@
 package db
 
 import (
-	"ps_web_0/models"
+	"github.com/ps_web_0/models"
 	"github.com/vattle/sqlboiler/queries"
 	"time"
 )

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"net/http"
-	"ps_web_0/view"
-	"ps_web_0/db"
+	"github.com/ps_web_0/view"
+	"github.com/ps_web_0/db"
 	"fmt"
 	"strconv"
-	"ps_web_0/models"
+	"github.com/ps_web_0/models"
 	"github.com/gorilla/schema"
 	"time"
 )
