@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"ps_web_0/controller"
+	"github.com/ps_web_0/controller"
 	"fmt"
 )
 
