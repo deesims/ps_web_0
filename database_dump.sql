@@ -351,32 +351,37 @@ INSERT INTO goauth (username, email, hash, role) VALUES ('roko', 'admin@localhos
 --
 
 INSERT INTO job (job_id, company_id, name, rating, student_level, num_of_positions, deadline_date, num_available_positions) VALUES (8, 1, 'Golang Developer', NULL, 2, 10, '2017-12-12', 9);
+INSERT INTO job (job_id, company_id, name, rating, student_level, num_of_positions, deadline_date, num_available_positions) VALUES (9, 1, 'Dev', NULL, 1, 10, '2017-12-12', 8);
 
 
 --
 -- Name: job_job_id_seq; Type: SEQUENCE SET; Schema: public; Owner: coopcat_dev
 --
 
-SELECT pg_catalog.setval('job_job_id_seq', 8, true);
+SELECT pg_catalog.setval('job_job_id_seq', 9, true);
 
 
 --
 -- Data for Name: resume; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
+INSERT INTO resume (resume_id, author_id, last_updated_at, resume_path) VALUES (1, 4, '2017-03-27 10:39:34.43', '/');
+INSERT INTO resume (resume_id, author_id, last_updated_at, resume_path) VALUES (2, 4, '2017-03-27 14:19:03.484', '/');
 
 
 --
 -- Name: resume_Resume_ID_seq; Type: SEQUENCE SET; Schema: public; Owner: coopcat_dev
 --
 
-SELECT pg_catalog.setval('"resume_Resume_ID_seq"', 1, false);
+SELECT pg_catalog.setval('"resume_Resume_ID_seq"', 2, true);
 
 
 --
 -- Data for Name: resume_review; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
+INSERT INTO resume_review (resume_id, moderator_id, review_date, review) VALUES (1, 6, '2017-03-27 10:40:22.611', 'It is awesome!');
+INSERT INTO resume_review (resume_id, moderator_id, review_date, review) VALUES (2, 6, '2017-03-27 14:18:27.526', 'The title is a little hard to read.');
 
 
 --
@@ -396,9 +401,9 @@ SELECT pg_catalog.setval('user_id_seq', 7, true);
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: coopcat_dev
 --
 
-INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 0);
 INSERT INTO users (user_id, name, password, email, address, role) VALUES (7, 'John Doe The Admin', 'password', 'johnny@gmail.com', '123 North Street', 2);
 INSERT INTO users (user_id, name, password, email, address, role) VALUES (6, 'John Doe2 The Mod', 'password', 'johndoe2@gmail.com', '123 North Street', 1);
+INSERT INTO users (user_id, name, password, email, address, role) VALUES (4, 'John Doe1', 'password', 'johndoe1@gmail.com', '123 North Street', 1);
 
 
 --
