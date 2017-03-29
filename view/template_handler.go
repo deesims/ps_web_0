@@ -20,6 +20,7 @@ func init() {
 		"view/admin_companies.html",
 		"view/admin_header.html",
 		"view/moderator_summary.html",
+		"view/userhub.html",
 	)
 	if templateError != nil {
 		panic(templateError)

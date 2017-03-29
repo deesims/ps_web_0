@@ -2,21 +2,14 @@ package controller
 
 import (
 	"fmt"
+	"github.com/deesims/ps_web_0/models"
+	"github.com/deesims/ps_web_0/view"
+	"gopkg.in/nullbio/null.v6"
+	"io"
 	"net/http"
+	"os"
 
-	"github.com/apexskier/httpauth"
-	"github.com/ps_web_0/db"
-	"github.com/ps_web_0/view"
 	"github.com/gorilla/mux"
-)
-
-type UserForm struct {
-	Username string
-	Password string
-}
-
-var (
-	authHandler httpauth.Authorizer
 )
 
 func registerRoutesToFuncs(r *mux.Router) {
@@ -30,44 +23,108 @@ func registerRoutesToFuncs(r *mux.Router) {
 
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
+
+	r.HandleFunc("/userhub", GetUserHubHandler).Methods("GET")
+	r.HandleFunc("/sendresumetomod", SendResumeToModerator).Methods("POST")
+	r.HandleFunc("/viewresume", ViewResume).Methods("GET")
+}
+
+func ViewResume(w http.ResponseWriter, r *http.Request) {
+	currentUser, err := authHandler.CurrentUser(w, r)
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		return
+	}
+
+	filePath := "public/resumes/resume.pdf"
+
+	data := map[string]interface{}{
+		"CurrentUser": currentUser,
+		"File-Path":   filePath,
+	}
+
+	view.RenderTemplate(w, "viewresume", data)
+}
+
+func LoadFileToDB(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
+func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
+
+	file, header, err := r.FormFile("uploadfile")
+
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	defer file.Close()
+
+	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Getwd() error: ", err.Error())
+	}
+
+	fmt.Println("current working dir:", currentDir)
+
+	resumeDir := "/public/resumes/"
+
+	out, err := os.Create(currentDir + resumeDir + header.Filename)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	defer out.Close()
+
+	// write the content from POST to the file
+	_, err = io.Copy(out, file)
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
+
+	var filePath null.String
+
+	filePath.SetValid(resumeDir + header.Filename)
+
+	resumeObject := models.Resume{
+		AuthorID:   4,
+		ResumePath: filePath,
+	}
+
+	err = resumeObject.InsertG()
+	if err != nil {
+		fmt.Println("resume object insertg error:", err.Error())
+	}
+
+	http.Redirect(w, r, "/viewresume", http.StatusSeeOther)
+}
+
+func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("UserHub Executing...")
+	currentUser, err := authHandler.CurrentUser(w, r)
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		return
+	}
+
+	data := map[string]interface{}{
+		"CurrentUser": currentUser,
+	}
+
+	view.RenderTemplate(w, "userhub", data)
+
 }
 
 // Handles the index page, renders a home page
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	AuthInit(w, r)
+
 	fmt.Println("homeHandler Executing...")
 	data := map[string]interface{}{
 		"hello-user":  103,
 		"thats-rught": 104,
-	}
-
-	dbAuth, err := httpauth.NewSqlAuthBackend("postgres", db.PsqlInfo)
-	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
-	}
-
-	roles := make(map[string]httpauth.Role)
-	roles["user"] = 30
-	roles["admin"] = 80
-
-	authHandler, err = httpauth.NewAuthorizer(dbAuth, []byte("cookie-encryption-key"), "user", roles)
-	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
-	}
-
-	username := "roko"
-	defaultUser := httpauth.UserData{Username: username, Role: "admin"}
-	err = dbAuth.SaveUser(defaultUser)
-	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
-	}
-	// Update user with a password and email address
-	err = authHandler.Update(w, r, username, "adminadmin", "admin@localhost.com")
-	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
 	}
 
 	view.RenderTemplate(w, "index", data)
@@ -94,18 +151,17 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("lg_password")
 
 	if err = authHandler.Login(w, r, username, password, "/"); err != nil {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/userhub", http.StatusSeeOther)
 	}
 	if err != nil {
 		fmt.Println(err)
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
-	fmt.Println("ff")
 }
 
 func Init() {
-	router := mux.NewRouter()
 
+	router := mux.NewRouter()
 	registerRoutesToFuncs(router)
 
 	http.Handle("/", router)

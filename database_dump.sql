@@ -184,7 +184,7 @@ ALTER SEQUENCE job_job_id_seq OWNED BY job.job_id;
 --
 
 CREATE TABLE resume (
-    resume_id numeric(19,0) NOT NULL,
+    resume_id numeric(19,0) SERIAL
     author_id numeric(19,0) NOT NULL,
     last_updated_at timestamp without time zone NOT NULL,
     resume_path character varying(200)

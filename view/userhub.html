@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, maximum-scale=1">
 	
 	<title>mycoop - find your job</title>
-	<link rel="stylesheet" type="text/css" href="coop.css" />
+	<link rel="stylesheet" type="text/css" href="public/css/coop.css" />
 </head>
 
 <body>	
@@ -20,7 +20,16 @@
 	<nav>
 		<ul id="n" class="clearfix">
 			<li class="sel"><a href="#">Home</a></li>
-			<li><a href="#">Upload Resume</a></li>
+			<li><a href="#">
+
+				<form enctype="multipart/form-data" action="/sendresumetomod" method="post">
+			    <input type="file" name="uploadfile" accept="application/pdf" />
+			    <input type="hidden" name="token" value="{{.}}"/>
+			    <input type="submit" value="upload" />
+				</form>
+
+			</a>
+			</li>
 			<li><a href="#">Create Job</a></li>
 		</ul>
 	</nav>
@@ -33,7 +42,7 @@
 				</div>
 				
 				<div class="data">
-					<h1>John Doe</h1>
+					<h1>{{.CurrentUser.Username}}</h1>
 					<h3>University of Ottawa</h3>
 					<h3>johndoe@uottawa.ca</h3>
 					<h3>Second Year</h3>

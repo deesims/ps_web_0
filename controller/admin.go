@@ -1,16 +1,15 @@
 package controller
 
 import (
-	"net/http"
-	"github.com/ps_web_0/view"
-	"github.com/ps_web_0/db"
 	"fmt"
-	"strconv"
-	"github.com/ps_web_0/models"
+	"github.com/deesims/ps_web_0/db"
+	"github.com/deesims/ps_web_0/models"
+	"github.com/deesims/ps_web_0/view"
 	"github.com/gorilla/schema"
+	"net/http"
+	"strconv"
 	"time"
 )
-
 
 func adminRoles(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
@@ -24,14 +23,14 @@ func adminRoles(w http.ResponseWriter, r *http.Request) {
 
 		data["notification"] = fmt.Sprintf("Updated the role of %s", returnedUser.Name)
 	}
-	
+
 	users, _ := db.GetAllUsers()
 	data["Users"] = users
 
 	view.RenderTemplate(w, "admin_roles", data)
 }
 
-func adminAddJob(w http.ResponseWriter, r *http.Request)  {
+func adminAddJob(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
@@ -65,14 +64,13 @@ func adminAddJob(w http.ResponseWriter, r *http.Request)  {
 	view.RenderTemplate(w, "admin_addjob", data)
 }
 
-func adminCompanies(w http.ResponseWriter, r *http.Request)  {
+func adminCompanies(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
 		returnedCompany := new(models.Company)
 		r.ParseForm() //Need to call before r.PostForm
 		schema.NewDecoder().Decode(returnedCompany, r.PostForm)
-
 
 		if returnedCompany.CompanyID == 0 {
 			returnedCompany.InsertG()

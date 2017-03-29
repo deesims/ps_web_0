@@ -1,17 +1,17 @@
 package controller
 
 import (
+	"github.com/deesims/ps_web_0/db"
+	"github.com/deesims/ps_web_0/models"
+	"github.com/deesims/ps_web_0/view"
 	"net/http"
-	"github.com/ps_web_0/view"
-	"github.com/ps_web_0/db"
-	"github.com/ps_web_0/models"
 	"strconv"
 )
 
 //Update to logged in user
-const moderatorId  = 6
+const moderatorId = 6
 
-func moderatorResumeSummary(w http.ResponseWriter, r *http.Request)  {
+func moderatorResumeSummary(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
