@@ -9,6 +9,7 @@ else
 fi
 
 
+
 rm -f ps_web_0
 echo Restarting server...
 go install
