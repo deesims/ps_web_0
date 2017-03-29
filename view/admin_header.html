@@ -1,9 +1,27 @@
 {{ define "admin_header" }}
+<html>
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-<ul>
-    <li><a href="/admin/roles">Roles</a></li>
-    <li><a href="/admin/addjob">Add Job</a></li>
-    <li><a href="/admin/companies">Companies</a></li>
-</ul>
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<header style="height:100px; background-color:#afafaf; line-height:100px;">
+	<div class="row">
+		<div class="col-md-8">
+			<a href="login.html"><img src="../public/img/cooplogo.png" alt="mycoop logo" title="mycoop - find your job" /></a>
+		</div>
+		<div class="col-md-4">
+			<a href="/admin/roles" class="btn btn-info" role="button">Roles</a>
+			<a href="/admin/addjob" class="btn btn-info" role="button">Add Job</a>
+			<a href="/admin/companies" class="btn btn-info" role="button">Companies</a>
+			<a href="login.html" class="btn btn-danger" role="button">Logout</a>
+		</div>
+	</div>	
+</header>
+</html>
 {{end}}
