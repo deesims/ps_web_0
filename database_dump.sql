@@ -87,6 +87,21 @@ $$;
 
 ALTER FUNCTION public.update_num_available_positions() OWNER TO coopcat_dev;
 
+-- update resume's LastUpdatedAt parameter, called from trigger in database_dump
+
+CREATE FUNCTION update_resume() RETURNS trigger
+	LANGUAGE plpsql
+	AS $$
+	BEGIN
+		UPDATE resume
+		SET new.last_updated_at = localtime;
+		RETURN new;
+	END;
+$$;
+
+
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -502,6 +517,12 @@ CREATE UNIQUE INDEX user_email_uindex ON users USING btree (email);
 --
 
 CREATE TRIGGER update_num_available_positions_trigger AFTER INSERT ON works_for FOR EACH ROW EXECUTE PROCEDURE update_num_available_positions();
+
+
+--probably shouldn't alter for every row
+
+CREATE TRIGGER updated_resume AFTER INSERT ON resume_path 
+FOR EACH ROW EXECUTE PROCEDURE update_resume()
 
 
 --
