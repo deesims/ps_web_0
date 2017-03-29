@@ -1,9 +1,16 @@
 {{ define "admin_header" }}
+<header>
+		<div class="wrapper">
+			<a href="#"><img src="img/Logo.png" alt="mycoop logo" title="mycoop - find your job" /></a>
+					
+			<ul>
+				<li><a href="/admin/addjob">Add Job</a></li>
+				<li><a href="/admin/roles">Roles</a></li>
+				<li><a href="/admin/companies">Companies</a></li>
+			</ul>
+				<span id="usernav"><a href="#">Logout</a> - <a href="#">My Profile<span><img src="img/user_avatar_s.jpg" /></span></a></span>
+		</div>
+	</header>
 
-<ul>
-    <li><a href="/admin/roles">Roles</a></li>
-    <li><a href="/admin/addjob">Add Job</a></li>
-    <li><a href="/admin/companies">Companies</a></li>
-</ul>
 
 {{end}}
