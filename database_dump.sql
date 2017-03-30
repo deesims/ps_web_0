@@ -89,7 +89,7 @@ ALTER FUNCTION public.update_num_available_positions() OWNER TO coopcat_dev;
 
 -- update resume's LastUpdatedAt parameter, called from trigger in database_dump
 
-CREATE FUNCTION update_resume() RETURNS trigger
+CREATE FUNCTION update_resume_time() RETURNS trigger
 	LANGUAGE plpsql
 	AS $$
 	BEGIN
@@ -522,7 +522,7 @@ CREATE TRIGGER update_num_available_positions_trigger AFTER INSERT ON works_for 
 --probably shouldn't alter for every row
 
 CREATE TRIGGER updated_resume AFTER INSERT ON resume_path 
-FOR EACH ROW EXECUTE PROCEDURE update_resume()
+FOR EACH ROW EXECUTE PROCEDURE update_resume_time()
 
 
 --
