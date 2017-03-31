@@ -4,4 +4,4 @@ goWiki
 *.exe
 /ps_web_0.iml
 ps_web_0
-
+/public/resumes/*
