@@ -199,7 +199,7 @@ ALTER SEQUENCE job_job_id_seq OWNED BY job.job_id;
 --
 
 CREATE TABLE resume (
-    resume_id numeric(19,0) SERIAL
+    resume_id numeric(19,0) NOT NULL,
     author_id numeric(19,0) NOT NULL,
     last_updated_at timestamp without time zone NOT NULL,
     resume_path character varying(200)
@@ -522,7 +522,7 @@ CREATE TRIGGER update_num_available_positions_trigger AFTER INSERT ON works_for 
 --probably shouldn't alter for every row
 
 CREATE TRIGGER updated_resume AFTER INSERT ON resume_path 
-FOR EACH ROW EXECUTE PROCEDURE update_resume_time()
+FOR EACH ROW EXECUTE PROCEDURE update_resume_time();
 
 
 --
