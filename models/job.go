@@ -27,10 +27,10 @@ type Job struct {
 	CompanyID             float64     `boil:"company_id" json:"company_id" toml:"company_id" yaml:"company_id"`
 	Name                  null.String `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
 	Rating                null.Int    `boil:"rating" json:"rating,omitempty" toml:"rating" yaml:"rating,omitempty"`
-	StudentLevel          null.Int    `boil:"student_level" json:"student_level,omitempty" toml:"student_level" yaml:"student_level,omitempty"`
+	StudentLevel          int         `boil:"student_level" json:"student_level" toml:"student_level" yaml:"student_level"`
 	NumOfPositions        int         `boil:"num_of_positions" json:"num_of_positions" toml:"num_of_positions" yaml:"num_of_positions"`
 	DeadlineDate          time.Time   `boil:"deadline_date" json:"deadline_date" toml:"deadline_date" yaml:"deadline_date"`
-	NumAvailablePositions null.Int    `boil:"num_available_positions" json:"num_available_positions,omitempty" toml:"num_available_positions" yaml:"num_available_positions,omitempty"`
+	NumAvailablePositions int         `boil:"num_available_positions" json:"num_available_positions" toml:"num_available_positions" yaml:"num_available_positions"`
 
 	R *jobR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L jobL  `boil:"-" json:"-" toml:"-" yaml:"-"`
