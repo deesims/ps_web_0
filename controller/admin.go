@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"github.com/deesims/ps_web_0/util"
 )
 
 func checkAdminRole(w http.ResponseWriter, r *http.Request) bool {
@@ -50,8 +51,7 @@ func adminRoles(w http.ResponseWriter, r *http.Request) {
 	view.RenderTemplate(w, "admin_roles", data)
 }
 
-func adminAddJob(w http.ResponseWriter, r *http.Request) {
-
+func adminJobs(w http.ResponseWriter, r *http.Request) {
 	if !checkAdminRole(w, r) {
 		fmt.Println("Error, not an admin.")
 		return
@@ -60,18 +60,20 @@ func adminAddJob(w http.ResponseWriter, r *http.Request) {
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
-		returnedJob := new(models.Job)
-		r.ParseForm() //Need to call before r.PostForm
-		schema.NewDecoder().Decode(returnedJob, r.PostForm)
+		var returnedJob models.Job
+		err := r.ParseForm() //Need to call before r.PostForm
+		util.PanicOnError(err)
+
+		schema.NewDecoder().Decode(&returnedJob, r.PostForm)
 
 		//Have to manually parse date
 		deadlineDate, _ := time.Parse("2006-02-01", r.FormValue("DeadlineDate"))
 		returnedJob.DeadlineDate = deadlineDate
 
 		if returnedJob.JobID == 0 {
-			returnedJob.InsertG()
+			returnedJob.InsertGP()
 		} else {
-			returnedJob.UpdateG()
+			returnedJob.UpdateGP()
 		}
 
 		data["notification"] = "Updated"

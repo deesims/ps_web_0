@@ -1,92 +1,45 @@
-<!doctype html>
-<html xmlns="http://www.w3.org/1999/html">
-<head></head>
+{{ template "head"}}
 <body>
-
 {{ template "admin_header" }}
 
+<div class="container">
 <h1>Companies</h1>
-{{if .notification }}
-<h3>{{.notification}}</h3>
-{{end}}
 
-<style>
-    DIV.table
-    {
-        display:table;
-    }
-    FORM.tr, DIV.tr
-    {
-        display:table-row;
-    }
-    SPAN.td
-    {
-        display:table-cell;
-    }
-    SPAN.th {
-        display:table-cell;
-        font-weight: bold;
-    }
-</style>
+    <!--Notification Here-->
+    {{if .notification }}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{.notification}}
+    </div>
+    {{end}}
 
-<h3>Add New Company</h3>
-<form class="tr" method="post">
+
+
+    <div class="row tableheader">
+        <span class="col s2">Name</span>
+        <span class="col s3">Description</span>
+        <span class="col s1"># Employees</span>
+    </div>
+<form class="row" method="post">
     <input type="hidden" name="CompanyID" value="0">
-    <span class="td">
-            <input type="text" class="name" name="Name" placeholder="Name"></span>
-    <span class="td"><input type="text" name="Description" placeholder="Description"></span>
-    <span class="td"><input type="number" name="NumEmployees" placeholder="# Employees"></span>
-    <span class="td"><input type="submit" value="Save"></span>
+    <span class="col s2"><input type="text" class="name" name="Name" placeholder="Name"></span>
+    <span class="col s3"><input type="text" name="Description" placeholder="Description"></span>
+    <span class="col s1"><input type="number" name="NumEmployees" placeholder="# Employees"></span>
+    <span class="col s1"><input type="submit" value="Add Company"></span>
 </form>
 
-<br />
-
-<!--
-TODO
-<input id="searchInput" placeholder="Type To Filter">
-
-<br />
-<br />
--->
-
-<div class="table" id="mainTable">
-    <div class="tr">
-        <span class="th">Name</span>
-        <span class="th">Description</span>
-        <span class="th"># Employees</span>
-    </div>
 {{range .Companies}}
-    <form class="tr" method="post">
+    <form class="row" method="post">
         <input type="hidden" name="CompanyID" value="{{.CompanyID}}">
-        <span class="td name">
+        <span class="col s2">
             <input type="text" name="Name" placeholder="Name" value="{{.Name}}"></span>
-        <span class="td"><input type="text" name="Description" placeholder="Description" value="{{.Description}}"></span>
-        <span class="td"><input type="number" name="NumEmployees" placeholder="# Employees" value="{{.NumEmployees}}"></span>
-        <span class="td"><input type="submit" value="Save"></span>
+        <span class="col s3"><input type="text" name="Description" placeholder="Description" value="{{.Description}}"></span>
+        <span class="col s1"><input type="number" name="NumEmployees" placeholder="# Employees" value="{{.NumEmployees}}"></span>
+        <span class="col s1"><input type="submit" value="Save"></span>
     </form>
 {{end}}
 </div>
 
-<!--
-<script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
-<script>
-    jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
-        return function( elem ) {
-            return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-        };
-    });
-
-    $("#searchInput").keyup(function () {
-        var rows = $("#mainTable").find(".tr").hide();
-        if (this.value.length) { //Something is written
-            rows.find(".name").filter(":Contains('" + this.value + "')").parent().show();
-        } else rows.show();
-    });
-</script>
--->
-
+</div>
 </body>
 </html>
