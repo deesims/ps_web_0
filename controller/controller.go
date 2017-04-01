@@ -13,16 +13,15 @@ import (
 )
 
 func registerRoutesToFuncs(r *mux.Router) {
-	r.HandleFunc("/", homeHandler)
+	r.HandleFunc("/", loginHandler)
 
 	r.HandleFunc("/admin/roles", adminRoles).Methods("GET", "POST")
-	r.HandleFunc("/admin/addjob", adminAddJob).Methods("GET", "POST")
+	r.HandleFunc("/admin/addjob", adminJobs).Methods("GET", "POST")
 	r.HandleFunc("/admin/companies", adminCompanies).Methods("GET", "POST")
 
 	r.HandleFunc("/moderator", moderatorResumeSummary).Methods("GET", "POST")
 
-	r.HandleFunc("/login", loginGetHandler).Methods("GET")
-	r.HandleFunc("/login", loginPostHandler).Methods("POST")
+	r.HandleFunc("/login", loginHandler).Methods("GET", "POST")
 
 	r.HandleFunc("/userhub", GetUserHubHandler).Methods("GET")
 	r.HandleFunc("/sendresumetomod", SendResumeToModerator).Methods("POST")
@@ -117,45 +116,25 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Handles the index page, renders a home page
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	AuthInit(w, r)
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 
-	fmt.Println("homeHandler Executing...")
-	data := map[string]interface{}{
-		"hello-user":  103,
-		"thats-rught": 104,
-	}
+		username := r.FormValue("lg_username")
+		password := r.FormValue("lg_password")
 
-	view.RenderTemplate(w, "index", data)
-}
-
-// loginHandler
-func loginGetHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("loginHandler Executing...")
-	data := map[string]interface{}{
-		"login": "herro",
-		"lol":   "103",
-	}
-
-	view.RenderTemplate(w, "login", data)
-}
-
-func loginPostHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	username := r.FormValue("lg_username")
-	password := r.FormValue("lg_password")
-
-	if err = authHandler.Login(w, r, username, password, "/"); err != nil {
-		http.Redirect(w, r, "/userhub", http.StatusSeeOther)
-	}
-	if err != nil {
-		fmt.Println(err)
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		if err = authHandler.Login(w, r, username, password, "/"); err != nil {
+			http.Redirect(w, r, "/userhub", http.StatusSeeOther)
+		}
+		if err != nil {
+			fmt.Println(err)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}
+	} else {
+	view.RenderTemplate(w, "login", nil)
 	}
 }
 

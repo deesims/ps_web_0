@@ -14,14 +14,13 @@ var (
 func init() {
 	templates, templateError = template.ParseFiles(
 		"view/login.html",
-		"view/index.html",
 		"view/admin_roles.html",
 		"view/admin_addjob.html",
 		"view/admin_companies.html",
 		"view/admin_header.html",
 		"view/moderator_summary.html",
 		"view/userhub.html",
-		"view/css/styles.html",
+		"view/common.html",
 	)
 	if templateError != nil {
 		panic(templateError)

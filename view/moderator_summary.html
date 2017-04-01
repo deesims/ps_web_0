@@ -1,60 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+{{template "head"}}
 <body>
-{{if .notification }}
-<h1>{{.notification}}</h1>
-{{end}}
+<nav>
+    <div class="nav-wrapper">
+        <span class="brand-logo center hide-on-med-and-down">Coopcat - Moderator</span>
+    </div>
+</nav>
 
-<style>
-    DIV.table {
-        display: table;
-    }
+<div class="container">
+    <h1>User Resumes</h1>
+    <!--Notification Here-->
+    {{if .notification }}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{.notification}}
+    </div>
+    {{end}}
 
-    FORM.tr, DIV.tr {
-        display: table-row;
-    }
-
-    SPAN.td {
-        display: table-cell;
-    }
-
-    SPAN.th {
-        display: table-cell;
-        font-weight: bold;
-    }
-</style>
-
-<div class="table">
     {{range $i, $user_resume := .users_resumes}}
-        <div class="tr">
-            <span class="th">{{ (index $user_resume 0).User.Name }}</span>
-            <span class="th">Your Comments</span>
-            <span class="th">Posted On</span>
+        <div class="row tableheader">
+            <span class="col s2">{{ (index $user_resume 0).User.Name }}</span>
+            <span class="col s7">Your Comments</span>
+            <span class="col s2">Posted On</span>
+            <span class="col s1"></span><!--Action-->
         </div>
 
         {{range $index, $element := $user_resume}}
             {{if (eq $index 0)}}
-                <form class="tr" method="post">
+                <form class="row" method="post">
                     <input type="hidden" name="ResumeID" value="{{$element.ResumeReview.ResumeID}}">
                     <input type="hidden" name="ModeratorID" value="{{$element.ResumeReview.ModeratorID}}">
-                    <span class="td"><a href="{{$element.Resume.ResumePath}}" target="_blank">Download</a></span>
-                    <span class="td"><input type="text" name="Review" value="{{$element.ResumeReview.Review}}"></span>
-                    <span class="td">{{$element.FormattedDate}}</span>
-                    <span class="td"><input type="submit" value="Save"></span>
+                    <span class="col s2"><a href="{{$element.Resume.ResumePath.String}}" target="_blank">Download Latest Resume</a></span>
+                    <span class="col s7"><input type="text" name="Review" value="{{$element.ResumeReview.Review}}"></span>
+                    <span class="col s2">{{$element.FormattedDate}}</span>
+                    <span class="col s1"><input type="submit" value="Update Review"></span>
                 </form>
             {{else}}
-            <div class="tr">
-                <span class="td"><a href="{{$element.Resume.ResumePath}}" target="_blank">Download</a></span>
-                <span class="td">{{$element.ResumeReview.Review}}</span>
-                <span class="td">{{$element.FormattedDate}}</span>
+            <div class="row">
+                <span class="col s2"><a href="{{$element.Resume.ResumePath}}" target="_blank">Download Resume</a></span>
+                <span class="col s7">{{$element.ResumeReview.Review}}</span>
+                <span class="col s2">{{$element.FormattedDate}}</span>
             </div>
             {{end}}
         {{end}}
     {{end}}
+
 </div>
 
 </body>
