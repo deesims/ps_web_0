@@ -12,15 +12,35 @@ import (
 	"github.com/deesims/ps_web_0/util"
 )
 
+func checkAdminRole(w http.ResponseWriter, r *http.Request) bool {
+	currentUser, err := authHandler.CurrentUser(w, r)
+	if err != nil {
+		fmt.Println("Error getting user: ", err.Error())
+		return false
+	}
+	if currentUser.Role != "admin" {
+		fmt.Println("Current user is not an admin")
+		return false
+	}
+
+	return true
+}
+
 func adminRoles(w http.ResponseWriter, r *http.Request) {
+
+	if !checkAdminRole(w, r) {
+		fmt.Println("Error, not an admin.")
+		return
+	}
+
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
-		userIdInt, _ := strconv.Atoi(r.PostFormValue("UserId"))
-		userId := float64(userIdInt)
+		userIDInt, _ := strconv.Atoi(r.PostFormValue("UserId"))
+		userID := float64(userIDInt)
 		newRole, _ := strconv.Atoi(r.PostFormValue("role"))
 
-		returnedUser := db.UpdateRole(userId, newRole)
+		returnedUser := db.UpdateRole(userID, newRole)
 
 		data["notification"] = fmt.Sprintf("Updated the role of %s", returnedUser.Name)
 	}
@@ -32,6 +52,11 @@ func adminRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminJobs(w http.ResponseWriter, r *http.Request) {
+	if !checkAdminRole(w, r) {
+		fmt.Println("Error, not an admin.")
+		return
+	}
+
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
@@ -68,6 +93,12 @@ func adminJobs(w http.ResponseWriter, r *http.Request) {
 }
 
 func adminCompanies(w http.ResponseWriter, r *http.Request) {
+
+	if !checkAdminRole(w, r) {
+		fmt.Println("Error, not an admin.")
+		return
+	}
+
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
