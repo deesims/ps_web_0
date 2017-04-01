@@ -6,6 +6,7 @@ import (
 	"github.com/deesims/ps_web_0/view"
 	"gopkg.in/nullbio/null.v6"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -13,22 +14,21 @@ import (
 )
 
 func registerRoutesToFuncs(r *mux.Router) {
-	r.HandleFunc("/", homeHandler)
-
+	r.HandleFunc("/auth", AuthInit)
+	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/admin/roles", adminRoles).Methods("GET", "POST")
 	r.HandleFunc("/admin/addjob", adminAddJob).Methods("GET", "POST")
 	r.HandleFunc("/admin/companies", adminCompanies).Methods("GET", "POST")
-
 	r.HandleFunc("/moderator", moderatorResumeSummary).Methods("GET", "POST")
-
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
-
 	r.HandleFunc("/userhub", GetUserHubHandler).Methods("GET")
 	r.HandleFunc("/sendresumetomod", SendResumeToModerator).Methods("POST")
 	r.HandleFunc("/viewresume", ViewResume).Methods("GET")
+	r.HandleFunc("/checkUser", checkUser)
 }
 
+// ViewResume gets the resume of logged in user
 func ViewResume(w http.ResponseWriter, r *http.Request) {
 	currentUser, err := authHandler.CurrentUser(w, r)
 	if err != nil {
@@ -51,7 +51,6 @@ func LoadFileToDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
-
 	file, header, err := r.FormFile("uploadfile")
 
 	if err != nil {
@@ -88,8 +87,10 @@ func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
 
 	filePath.SetValid(resumeDir + header.Filename)
 
+	author, _ := models.FindUserG(3)
+
 	resumeObject := models.Resume{
-		AuthorID:   4,
+		AuthorID:   (float64)(author.UserID),
 		ResumePath: filePath,
 	}
 
@@ -109,6 +110,11 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if currentUser.Role != "user" {
+		log.Print("Error: Not a user")
+		return
+	}
+
 	data := map[string]interface{}{
 		"CurrentUser": currentUser,
 	}
@@ -119,23 +125,25 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 
 // Handles the index page, renders a home page
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	AuthInit(w, r)
-
 	fmt.Println("homeHandler Executing...")
 	data := map[string]interface{}{
 		"hello-user":  103,
 		"thats-rught": 104,
 	}
-
 	view.RenderTemplate(w, "index", data)
 }
 
 // loginHandler
 func loginGetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("loginHandler Executing...")
+	currentUser, err := authHandler.CurrentUser(w, r)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+	}
+
 	data := map[string]interface{}{
-		"login": "herro",
-		"lol":   "103",
+		"LoggedUser": currentUser,
+		"lol":        "103",
 	}
 
 	view.RenderTemplate(w, "login", data)
@@ -150,15 +158,30 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("lg_username")
 	password := r.FormValue("lg_password")
 
-	if err = authHandler.Login(w, r, username, password, "/"); err != nil {
-		http.Redirect(w, r, "/userhub", http.StatusSeeOther)
-	}
+	authHandler.Login(w, r, username, password, "/checkUser") // catch seem to catch proper err for redirect
+
+}
+
+func checkUser(w http.ResponseWriter, r *http.Request) {
+	user, err := authHandler.CurrentUser(w, r) // check what user logged in
 	if err != nil {
-		fmt.Println(err)
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		fmt.Println("user err at 156: ", err.Error())
+		return
+	}
+	fmt.Println("Role of user: ", user.Role)
+
+	if user.Role == "user" {
+		http.Redirect(w, r, "/userhub", http.StatusSeeOther)
+	} else if user.Role == "admin" {
+		fmt.Println("executing admin add job page")
+		http.Redirect(w, r, "/admin/addjob", http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, "/moderator", http.StatusSeeOther)
 	}
 }
 
+// Init initializes the controller and registers the routes to appropriate
+// function handlers
 func Init() {
 
 	router := mux.NewRouter()
