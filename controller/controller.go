@@ -15,7 +15,6 @@ import (
 )
 
 func registerRoutesToFuncs(r *mux.Router) {
-	r.HandleFunc("/auth", AuthInit)
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/admin/roles", adminRoles).Methods("GET", "POST")
 	r.HandleFunc("/admin/jobs", adminJobs).Methods("GET", "POST")
@@ -131,6 +130,7 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 
 // Handles the index page, renders a home page
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	AuthInit(w, r)
 	fmt.Println("homeHandler Executing...")
 	data := map[string]interface{}{
 		"hello-user":  103,
@@ -180,7 +180,7 @@ func checkUser(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/userhub", http.StatusSeeOther)
 	} else if user.Role == "admin" {
 		fmt.Println("executing admin add job page")
-		http.Redirect(w, r, "/admin/addjob", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/jobs", http.StatusSeeOther)
 	} else {
 		http.Redirect(w, r, "/moderator", http.StatusSeeOther)
 	}
