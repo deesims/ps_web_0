@@ -2,42 +2,32 @@
 <body>
 {{ template "admin_header" }}
 
-<h1>Users</h1>
-{{if .notification }}
-<h3>{{.notification}}</h3>
-{{end}}
 
-<style>
-    DIV.table
-    {
-        display:table;
-    }
-    FORM.tr, DIV.tr
-    {
-        display:table-row;
-    }
-    SPAN.td
-    {
-        display:table-cell;
-    }
-    SPAN.th {
-        display:table-cell;
-        font-weight: bold;
-    }
-</style>
+<div class="container">
+    <h1>Users</h1>
+    <!--Notification Here-->
+    {{if .notification }}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{.notification}}
+    </div>
+    {{end}}
 
 <input id="searchInput" placeholder="Type To Filter">
 
-<div class="table" id="usersTable">
-    <div class="tr">
-        <span class="th">Name</span>
-        <span class="th">Role</span>
+    <br />
+    <br />
+
+<div id="usersTable">
+    <div class="row tableheader">
+        <span class="col s2">Name</span>
+        <span class="col s2">Role</span>
     </div>
 {{range .Users}}
-    <form class="tr" method="post">
+    <form class="row" method="post">
         <input type="hidden" name="UserId" value="{{.UserID}}">
-        <span class="td name">{{.Name}}</span>
-        <span class="td">
+        <span class="col s2 name">{{.Name}}</span>
+        <span class="col s2">
         <select name="role" onchange="this.form.submit()">
             <option value="0" {{if eq .Role 0}} selected {{end}}>Student</option>
             <option value="1" {{if eq .Role 1}} selected {{end}}>Moderator</option>
@@ -47,11 +37,8 @@
     </form>
 {{end}}
 </div>
+</div>
 
-<script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
 <script>
     jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
         return function( elem ) {

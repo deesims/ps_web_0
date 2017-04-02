@@ -21,7 +21,7 @@ func init() {
 		"view/admin_header.html",
 		"view/moderator_summary.html",
 		"view/userhub.html",
-		"view/css/styles.html",
+		"view/common.html",
 		"view/viewresume.html",
 	)
 	if templateError != nil {

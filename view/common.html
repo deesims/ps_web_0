@@ -1,0 +1,58 @@
+{{define "styles"}}
+
+<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+
+<style>
+    /* The alert message box */
+    .alert {
+    padding: 20px;
+    background-color: #2196F3; /* Red */
+    color: white;
+    margin-bottom: 15px;
+    }
+
+    /* The close button */
+    .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    }
+
+    /* When moving the mouse over the close button */
+    .closebtn:hover {
+    color: black;
+    }
+
+    /* Bold Table Header */
+    .tableheader {
+        font-weight: bold;
+        margin-bottom: 0px;
+    }
+</style>
+{{end}}
+
+{{define "head"}}
+<html>
+<head>
+    {{template "styles"}}
+
+    {{if .title}}
+    <title>{{.title}}</title>
+    {{end}}
+</head>
+{{end}}

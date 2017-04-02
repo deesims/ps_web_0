@@ -1,15 +1,37 @@
 {{ define "admin_header" }}
-<header style="height:100px; background-color:#afafaf; line-height:100px;">
-	<div class="row">
-		<div class="col-md-8">
-			<a href="login.html"><img src="../public/img/cooplogo.png" alt="mycoop logo" title="mycoop - find your job" /></a>
-		</div>
-		<div class="col-md-4">
-			<a href="/admin/roles" class="btn btn-info" role="button">Roles</a>
-			<a href="/admin/addjob" class="btn btn-info" role="button">Add Job</a>
-			<a href="/admin/companies" class="btn btn-info" role="button">Companies</a>
-			<a href="login.html" class="btn btn-danger" role="button">Logout</a>
-		</div>
+<nav>
+	<div class="nav-wrapper">
+		<span class="brand-logo center hide-on-med-and-down">Coopcat - Admin</span>
+		<ul id="nav-mobile">
+			<li><a href="/admin/roles">Roles</a></li>
+			<li><a href="/admin/addjob">Add Job</a></li>
+			<li><a href="/admin/companies">Companies</a></li>
+			<li><a href="login.html">Logout</a></li>
+		</ul>
 	</div>	
-</header>
+</nav>
+
+<style>
+	DIV.table {
+		display: table;
+	}
+
+	FORM.tr, DIV.tr {
+		display: table-row;
+	}
+
+	SPAN.td {
+		display: table-cell;
+	}
+
+	SPAN.th {
+		font-weight: bold;
+		display: table-cell;
+	}
+</style>
+<script>
+    $(document).ready(function() {
+        $('select').material_select();
+    });
+</script>
 {{end}}
