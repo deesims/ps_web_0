@@ -46,3 +46,9 @@ func FindAllResumesForAuthorID(authorID float64) []models.Resume {
 
 	return resumes
 }
+
+func FindUserFromUsername(username string) models.User {
+	var user models.User
+	queries.RawG("SELECT * FROM users WHERE ( name = " + username + " )").BindP(&user)
+	return user
+}

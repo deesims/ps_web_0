@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/deesims/ps_web_0/db"
 	"github.com/deesims/ps_web_0/models"
 	"github.com/deesims/ps_web_0/view"
 	"gopkg.in/nullbio/null.v6"
@@ -36,11 +37,12 @@ func ViewResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath := "public/resumes/resume.pdf"
+	user := db.FindUserFromUsername(currentUser.Username)
+	resumes := db.FindAllResumesForAuthorID(user.UserID)
 
 	data := map[string]interface{}{
 		"CurrentUser": currentUser,
-		"File-Path":   filePath,
+		"Resumes":     resumes,
 	}
 
 	view.RenderTemplate(w, "viewresume", data)
@@ -52,12 +54,10 @@ func LoadFileToDB(w http.ResponseWriter, r *http.Request) {
 
 func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("uploadfile")
-
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
 	}
-
 	defer file.Close()
 
 	currentDir, err := os.Getwd()
@@ -84,10 +84,16 @@ func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var filePath null.String
-
 	filePath.SetValid(resumeDir + header.Filename)
 
-	author, _ := models.FindUserG(3)
+	currentUser, err := authHandler.CurrentUser(w, r)
+	if err != nil {
+		return
+	}
+
+	author := db.FindUserFromUsername(currentUser.Username)
+
+	fmt.Println("author of the resume", author.Name)
 
 	resumeObject := models.Resume{
 		AuthorID:   (float64)(author.UserID),

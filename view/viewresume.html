@@ -2,6 +2,9 @@
 
 
 <h5> Resume  <h5>
-<embed rc={{.FilePath}}>
-
+{{range .Resumes}}
+{{.AuthorID}}
+{{.ResumeID}}
+<embed rc={{.ResumePath}}>
+{{end}}
 </html>
