@@ -3,6 +3,7 @@
 <nav>
     <div class="nav-wrapper">
         <span class="brand-logo center hide-on-med-and-down">Coopcat - Moderator</span>
+        <li><a href="/">Logout</a></li>
     </div>
 </nav>
 
@@ -29,7 +30,7 @@
                 <form class="row" method="post">
                     <input type="hidden" name="ResumeID" value="{{$element.ResumeReview.ResumeID}}">
                     <input type="hidden" name="ModeratorID" value="{{$element.ResumeReview.ModeratorID}}">
-                    Resume ID: {{$element.Resume.ResumeID}} <span class="col s2"><a href="{{$element.Resume.ResumePath.String}}" target="_blank">Download Latest Resume</a></span>
+                    <span class="col s2"><a href="{{$element.Resume.ResumePath.String}}" target="_blank">Download Latest Resume</a></span>
                     <span class="col s7"><input type="text" name="Review" value="{{$element.ResumeReview.Review}}"></span>
                     <span class="col s2">{{$element.FormattedDate}}</span>
                     <span class="col s1"><input type="submit" value="Update Review"></span>
