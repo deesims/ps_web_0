@@ -30,7 +30,7 @@ func moderatorResumeSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	moderator, err := models.FindUserG(6)
+	moderator, err := models.FindUserG(9)
 	if err != nil {
 		fmt.Println("err geting moderator", err.Error())
 		return

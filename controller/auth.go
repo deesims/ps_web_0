@@ -82,7 +82,7 @@ func AuthInit(w http.ResponseWriter, r *http.Request) {
 	adminDB.Email = "admin@localhost.com"
 	if err = adminDB.InsertG(); err != nil {
 		fmt.Println("Error inserting admin...", err.Error())
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 
 	moderatorDB := new(models.User)
@@ -91,7 +91,7 @@ func AuthInit(w http.ResponseWriter, r *http.Request) {
 	moderatorDB.Email = "moderator@localhost.com"
 	if err = moderatorDB.InsertG(); err != nil {
 		fmt.Println("Error inserting moderator...", err.Error())
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 
 	userDB := new(models.User)
@@ -100,7 +100,7 @@ func AuthInit(w http.ResponseWriter, r *http.Request) {
 	userDB.Email = "user@localhost.com"
 	if err = userDB.InsertG(); err != nil {
 		fmt.Println("Error inserting...", err.Error())
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)

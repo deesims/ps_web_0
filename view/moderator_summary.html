@@ -29,14 +29,14 @@
                 <form class="row" method="post">
                     <input type="hidden" name="ResumeID" value="{{$element.ResumeReview.ResumeID}}">
                     <input type="hidden" name="ModeratorID" value="{{$element.ResumeReview.ModeratorID}}">
-                    <span class="col s2"><a href="{{$element.Resume.ResumePath.String}}" target="_blank">Download Latest Resume</a></span>
+                    Resume ID: {{$element.Resume.ResumeID}} <span class="col s2"><a href="{{$element.Resume.ResumePath.String}}" target="_blank">Download Latest Resume</a></span>
                     <span class="col s7"><input type="text" name="Review" value="{{$element.ResumeReview.Review}}"></span>
                     <span class="col s2">{{$element.FormattedDate}}</span>
                     <span class="col s1"><input type="submit" value="Update Review"></span>
                 </form>
             {{else}}
             <div class="row">
-                <span class="col s2"><a href="{{$element.Resume.ResumePath}}" target="_blank">Download Resume</a></span>
+                 Resume ID: {{$element.Resume.ResumeID}} <span class="col s2"><a href="{{$element.Resume.ResumePath}}" target="_blank">Download Resume</a></span>
                 <span class="col s7">{{$element.ResumeReview.Review}}</span>
                 <span class="col s2">{{$element.FormattedDate}}</span>
             </div>

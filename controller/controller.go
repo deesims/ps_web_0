@@ -10,9 +10,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
+
+type ResumeReviewView struct {
+	Resume *models.Resume
+	Review *models.ResumeReview
+}
 
 func registerRoutesToFuncs(r *mux.Router) {
 	r.HandleFunc("/", homeHandler).Methods("GET")
@@ -90,13 +96,20 @@ func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	author := db.FindUserFromUsername(currentUser.Username)
+	users, _ := models.UsersG().All()
 
-	fmt.Println("author of the resume", author.Name)
+	var user *models.User
+
+	for _, u := range users {
+		if u.Name == currentUser.Username {
+			user = u
+		}
+	}
 
 	resumeObject := models.Resume{
-		AuthorID:   (float64)(author.UserID),
-		ResumePath: filePath,
+		AuthorID:      user.UserID,
+		ResumePath:    filePath,
+		LastUpdatedAt: time.Now(),
 	}
 
 	err = resumeObject.InsertG()
@@ -104,7 +117,18 @@ func SendResumeToModerator(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("resume object insertg error:", err.Error())
 	}
 
-	http.Redirect(w, r, "/viewresume", http.StatusSeeOther)
+	resumeReview := models.ResumeReview{
+		ModeratorID: 9,
+		ResumeID:    resumeObject.ResumeID,
+		ReviewDate:  time.Now(),
+	}
+
+	err = resumeReview.InsertG()
+	if err != nil {
+		fmt.Println("resume review insertg error:", err.Error())
+	}
+
+	http.Redirect(w, r, "/userhub", http.StatusSeeOther)
 }
 
 func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
@@ -120,8 +144,65 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	users, err := models.UsersG().All()
+	if err != nil {
+		fmt.Println("err getting users: ", err.Error())
+		return
+	}
+
+	var user *models.User
+
+	for _, u := range users {
+		if u.Name == currentUser.Username {
+			user = u
+		}
+	}
+
+	jobs, err := models.JobsG().All()
+	if err != nil {
+		fmt.Println("err getting jobs: ", err.Error())
+		return
+	}
+
+	for index, job := range jobs {
+		fmt.Println("index of job: ", index, " job title ", job.Name)
+	}
+
+	resumes, err := models.ResumesG().All()
+	if err != nil {
+		fmt.Println("err getting resumes: ", err.Error())
+		return
+	}
+
+	var userResumes []*models.Resume
+
+	for index, resume := range resumes {
+		fmt.Println("index of resume: ", index, " resume author id: ", resume.AuthorID, " resume id: ", resume.ResumeID)
+		if resume.AuthorID == user.UserID {
+			userResumes = append(userResumes, resume)
+		}
+	}
+
+	reviews, _ := models.ResumeReviewsG().All()
+
+	var resumeReviews []*ResumeReviewView
+
+	for _, resume := range userResumes {
+		for _, review := range reviews {
+			if resume.ResumeID == review.ResumeID {
+				resumeReview := &ResumeReviewView{
+					Resume: resume, Review: review,
+				}
+				resumeReviews = append(resumeReviews, resumeReview)
+			}
+		}
+	}
+
 	data := map[string]interface{}{
 		"CurrentUser": currentUser,
+		"User":        user,
+		"Jobs":        jobs,
+		"Resumes":     resumeReviews,
 	}
 
 	view.RenderTemplate(w, "userhub", data)
@@ -149,7 +230,6 @@ func loginGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"LoggedUser": currentUser,
-		"lol":        "103",
 	}
 
 	view.RenderTemplate(w, "login", data)
@@ -164,8 +244,11 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("lg_username")
 	password := r.FormValue("lg_password")
 
-	authHandler.Login(w, r, username, password, "/checkUser") // catch seem to catch proper err for redirect
-
+	if err = authHandler.Login(w, r, username, password, "/checkUser"); err != nil {
+		if err.Error() == "httpauth: already authenticated" {
+			checkUser(w, r)
+		}
+	}
 }
 
 func checkUser(w http.ResponseWriter, r *http.Request) {
