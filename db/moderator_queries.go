@@ -26,3 +26,15 @@ func GetModeratorResumes(moderatorId int) []*UserResume {
 
 	return userResume
 }
+
+type ResumeReviewWithResume struct {
+	models.ResumeReview `boil:",bind"`
+	models.Resume `boil:",bind"`
+}
+func FindAllResumesReviewForAuthorID(userid float64) []*ResumeReviewWithResume {
+	var userResume []*ResumeReviewWithResume
+
+	queries.RawG("SELECT * FROM resume_review JOIN Resume r ON resume_review.resume_id = r.resume_id WHERE r.author_id = $1 ORDER BY r.last_updated_at DESC", userid).BindP(&userResume)
+
+	return userResume
+}

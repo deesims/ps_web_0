@@ -30,15 +30,13 @@ func moderatorResumeSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	moderator, err := models.FindUserG(9)
-	if err != nil {
-		fmt.Println("err geting moderator", err.Error())
-		return
-	}
+	currentUser, _ := authHandler.CurrentUser(w, r)
+	moderator := db.FindUserFromUsername(currentUser.Username)
 
 	var data = make(map[string]interface{})
 
 	if r.Method == "POST" {
+		r.ParseForm()
 		resumeID, _ := strconv.ParseFloat(r.PostFormValue("ResumeID"), 64)
 		moderatorID, _ := strconv.ParseFloat(r.PostFormValue("ModeratorID"), 64)
 

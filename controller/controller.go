@@ -167,42 +167,13 @@ func GetUserHubHandler(w http.ResponseWriter, r *http.Request) {
 	for index, job := range jobs {
 		fmt.Println("index of job: ", index, " job title ", job.Name)
 	}
-
-	resumes, err := models.ResumesG().All()
-	if err != nil {
-		fmt.Println("err getting resumes: ", err.Error())
-		return
-	}
-
-	var userResumes []*models.Resume
-
-	for index, resume := range resumes {
-		fmt.Println("index of resume: ", index, " resume author id: ", resume.AuthorID, " resume id: ", resume.ResumeID)
-		if resume.AuthorID == user.UserID {
-			userResumes = append(userResumes, resume)
-		}
-	}
-
-	reviews, _ := models.ResumeReviewsG().All()
-
-	var resumeReviews []*ResumeReviewView
-
-	for _, resume := range userResumes {
-		for _, review := range reviews {
-			if resume.ResumeID == review.ResumeID {
-				resumeReview := &ResumeReviewView{
-					Resume: resume, Review: review,
-				}
-				resumeReviews = append(resumeReviews, resumeReview)
-			}
-		}
-	}
+	resumeReviews_Resume := db.FindAllResumesReviewForAuthorID(user.UserID)
 
 	data := map[string]interface{}{
 		"CurrentUser": currentUser,
 		"User":        user,
 		"Jobs":        jobs,
-		"Resumes":     resumeReviews,
+		"Resumes":     resumeReviews_Resume,
 	}
 
 	view.RenderTemplate(w, "userhub", data)

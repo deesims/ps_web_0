@@ -56,10 +56,10 @@
 	<object width="500" height="500" data={{.Resume.ResumePath.String}}></object>
 
 
-			{{if .Review.Review}}
-				<h4>Moderator Review: {{.Review.Review}}</h4>
-				<h4>Reviewed by Moderator_ID: {{.Review.ModeratorID}}</h4>
-				<h4> The Date of Review: {{.Review.ReviewDate}}</h4>
+			{{if .ResumeReview.Review}}
+				<h4>Moderator Review: {{.ResumeReview.Review}}</h4>
+				<h4>Reviewed by Moderator_ID: {{.ResumeReview.ModeratorID}}</h4>
+				<h4> The Date of Review: {{.ResumeReview.ReviewDate}}</h4>
 			{{else}}
 				<h4>Moderator has not reviewed this resume yet.</h4>
 			{{end}}

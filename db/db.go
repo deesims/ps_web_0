@@ -14,8 +14,8 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "postgres"
-	password = "postgres"
+	user     = "coopcat_dev"
+	password = "coopcat_dev"
 	dbname   = "coopcat"
 )
 
@@ -49,6 +49,6 @@ func FindAllResumesForAuthorID(authorID float64) []models.Resume {
 
 func FindUserFromUsername(username string) models.User {
 	var user models.User
-	queries.RawG("SELECT * FROM users WHERE ( name = " + username + " )").BindP(&user)
+	queries.RawG("SELECT * FROM users WHERE name = $1;", username).BindP(&user)
 	return user
 }
